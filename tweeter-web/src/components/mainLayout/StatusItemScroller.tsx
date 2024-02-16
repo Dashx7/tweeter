@@ -1,21 +1,18 @@
-import { AuthToken, FakeData, Status, User } from "tweeter-shared";
+import { AuthToken, Status, User } from "tweeter-shared";
 import { useState, useRef, useEffect } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
 import useToastListener from "../toaster/ToastListenerHook";
 import StatusItem from "../statusItem/StatusItem";
 import UseInfoHook from "../userInfo/UseInfoHook";
+import {
+  StatusItemPresenter,
+  StatusItemView,
+} from "../../presenter/StatusItemPresenter";
 
 export const PAGE_SIZE = 10;
 
 interface Props {
-  itemDescription: string; //Feed or Story
-  loadMoreStatusItems: (
-    authToken: AuthToken,
-    user: User,
-    pageSize: number,
-    lastItem: Status | null
-  ) => Promise<[Status[], boolean]>;
-  //This is a function that takes in an AuthToken, a User, a number, and a Status and returns a Promise of an array of Statuses and a boolean
+  presenterGenerator: (view: StatusItemView) => StatusItemPresenter;
 }
 
 const StatusItemScroller = (props: Props) => {
@@ -36,36 +33,18 @@ const StatusItemScroller = (props: Props) => {
 
   // Load initial items
   useEffect(() => {
-    loadMoreItems();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    presenter.loadMoreItems(authToken!, displayedUser!); // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  type LoadFunctionType<T> = (
-    authToken: AuthToken,
-    user: User,
-    pageSize: number,
-    lastItem: T | null
-  ) => Promise<[T[], boolean]>;
+  const listener: StatusItemView = {
+    addItems: (newItems: Status[]) =>
+      setItems([...itemsReference.current, ...newItems]),
+    displayErrorMessage: displayErrorMessage,
+  };
+  const [presenter] = useState(props.presenterGenerator(listener));
 
   const loadMoreItems = async () => {
-    try {
-      if (hasMoreItems) {
-        let [newItems, hasMore] = await props.loadMoreStatusItems(
-          authToken!,
-          displayedUser!,
-          PAGE_SIZE,
-          lastItem
-        );
-
-        setHasMoreItems(hasMore);
-        setLastItem(newItems[newItems.length - 1]);
-        addItems(newItems);
-      }
-    } catch (error) {
-      displayErrorMessage(
-        `Failed to load ${props.itemDescription} items because of exception: ${error}`
-      );
-    }
+    presenter.loadMoreItems(authToken!, displayedUser!);
   };
 
   return (

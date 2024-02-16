@@ -1,100 +1,38 @@
 import "./UserInfo.css";
-import { useEffect, useState } from "react";
+import React, { useEffect, useLayoutEffect, useReducer, useState } from "react";
 import { Link } from "react-router-dom";
-import { AuthToken, FakeData, User } from "tweeter-shared";
 import useToastListener from "../toaster/ToastListenerHook";
+import {
+  UserInfoPresenter,
+  UserInfoView,
+} from "../../presenter/UserInfoPresenter";
 import UseInfoHook from "./UseInfoHook";
 
 const UserInfo = () => {
-  const [isFollower, setIsFollower] = useState(false);
-  const [followeesCount, setFolloweesCount] = useState(-1);
-  const [followersCount, setFollowersCount] = useState(-1);
   const { displayErrorMessage, displayInfoMessage, clearLastInfoMessage } =
     useToastListener();
 
   const { currentUser, authToken, displayedUser, setDisplayedUser } =
     UseInfoHook();
+  const [, forceUpdate] = useReducer((x) => x + 1, 0);
 
   if (!displayedUser) {
     setDisplayedUser(currentUser!);
   }
 
+  const listener: UserInfoView = {
+    displayErrorMessage: displayErrorMessage,
+    displayInfoMessage: displayInfoMessage,
+    clearLastInfoMessage: clearLastInfoMessage,
+    infoChanged: () => {
+      forceUpdate();
+    },
+  };
+
+  const [presenter] = useState(new UserInfoPresenter(listener));
   useEffect(() => {
-    setIsFollowerStatus(authToken!, currentUser!, displayedUser!);
-    setNumbFollowees(authToken!, displayedUser!);
-    setNumbFollowers(authToken!, displayedUser!);
-  });
-
-  const setIsFollowerStatus = async (
-    authToken: AuthToken,
-    currentUser: User,
-    displayedUser: User
-  ) => {
-    try {
-      if (currentUser === displayedUser) {
-        setIsFollower(false);
-      } else {
-        setIsFollower(
-          await getIsFollowerStatus(authToken!, currentUser!, displayedUser!)
-        );
-      }
-    } catch (error) {
-      displayErrorMessage(
-        `Failed to determine follower status because of exception: ${error}`
-      );
-    }
-  };
-
-  const getIsFollowerStatus = async (
-    authToken: AuthToken,
-    user: User,
-    selectedUser: User
-  ): Promise<boolean> => {
-    // TODO: Replace with the result of calling server
-    return FakeData.instance.isFollower();
-  };
-
-  const setNumbFollowees = async (
-    authToken: AuthToken,
-    displayedUser: User
-  ) => {
-    try {
-      setFolloweesCount(await getFolloweesCount(authToken, displayedUser));
-    } catch (error) {
-      displayErrorMessage(
-        `Failed to get followees count because of exception: ${error}`
-      );
-    }
-  };
-
-  const getFolloweesCount = async (
-    authToken: AuthToken,
-    user: User
-  ): Promise<number> => {
-    // TODO: Replace with the result of calling server
-    return FakeData.instance.getFolloweesCount(user);
-  };
-
-  const setNumbFollowers = async (
-    authToken: AuthToken,
-    displayedUser: User
-  ) => {
-    try {
-      setFollowersCount(await getFollowersCount(authToken, displayedUser));
-    } catch (error) {
-      displayErrorMessage(
-        `Failed to get followers count because of exception: ${error}`
-      );
-    }
-  };
-
-  const getFollowersCount = async (
-    authToken: AuthToken,
-    user: User
-  ): Promise<number> => {
-    // TODO: Replace with the result of calling server
-    return FakeData.instance.getFollowersCount(user);
-  };
+    presenter.updateUserInformation(authToken!, currentUser!, displayedUser!);
+  }, [displayedUser]);
 
   const switchToLoggedInUser = (event: React.MouseEvent): void => {
     event.preventDefault();
@@ -106,39 +44,7 @@ const UserInfo = () => {
   ): Promise<void> => {
     event.preventDefault();
 
-    try {
-      displayInfoMessage(`Adding ${displayedUser!.name} to followers...`, 0);
-
-      let [followersCount, followeesCount] = await follow(
-        authToken!,
-        displayedUser!
-      );
-
-      clearLastInfoMessage();
-
-      setIsFollower(true);
-      setFollowersCount(followersCount);
-      setFolloweesCount(followeesCount);
-    } catch (error) {
-      displayErrorMessage(
-        `Failed to follow user because of exception: ${error}`
-      );
-    }
-  };
-
-  const follow = async (
-    authToken: AuthToken,
-    userToFollow: User
-  ): Promise<[followersCount: number, followeesCount: number]> => {
-    // Pause so we can see the following message. Remove when connected to the server
-    await new Promise((f) => setTimeout(f, 2000));
-
-    // TODO: Call the server
-
-    let followersCount = await getFollowersCount(authToken, userToFollow);
-    let followeesCount = await getFolloweesCount(authToken, userToFollow);
-
-    return [followersCount, followeesCount];
+    await presenter.followDisplayedUser(authToken!, displayedUser!);
   };
 
   const unfollowDisplayedUser = async (
@@ -146,42 +52,7 @@ const UserInfo = () => {
   ): Promise<void> => {
     event.preventDefault();
 
-    try {
-      displayInfoMessage(
-        `Removing ${displayedUser!.name} from followers...`,
-        0
-      );
-
-      let [followersCount, followeesCount] = await unfollow(
-        authToken!,
-        displayedUser!
-      );
-
-      clearLastInfoMessage();
-
-      setIsFollower(false);
-      setFollowersCount(followersCount);
-      setFolloweesCount(followeesCount);
-    } catch (error) {
-      displayErrorMessage(
-        `Failed to unfollow user because of exception: ${error}`
-      );
-    }
-  };
-
-  const unfollow = async (
-    authToken: AuthToken,
-    userToUnfollow: User
-  ): Promise<[followersCount: number, followeesCount: number]> => {
-    // Pause so we can see the unfollowing message. Remove when connected to the server
-    await new Promise((f) => setTimeout(f, 2000));
-
-    // TODO: Call the server
-
-    let followersCount = await getFollowersCount(authToken, userToUnfollow);
-    let followeesCount = await getFolloweesCount(authToken, userToUnfollow);
-
-    return [followersCount, followeesCount];
+    await presenter.unfollowDisplayedUser(authToken!, displayedUser!);
   };
 
   return (
@@ -216,16 +87,18 @@ const UserInfo = () => {
               </h2>
               <h3>{displayedUser.alias}</h3>
               <br />
-              {followeesCount > -1 && followersCount > -1 && (
-                <div>
-                  Following: {followeesCount} Followers: {followersCount}
-                </div>
-              )}
+              {presenter.followeesCount > -1 &&
+                presenter.followersCount > -1 && (
+                  <div>
+                    Following: {presenter.followeesCount} Followers:{" "}
+                    {presenter.followersCount}
+                  </div>
+                )}
             </div>
             <form>
               {displayedUser !== currentUser && (
                 <div className="form-group">
-                  {isFollower ? (
+                  {presenter.isFollower ? (
                     <button
                       id="unFollowButton"
                       className="btn btn-md btn-secondary me-1"
@@ -255,3 +128,260 @@ const UserInfo = () => {
 };
 
 export default UserInfo;
+
+// import "./UserInfo.css";
+// import { useEffect, useState } from "react";
+// import { Link } from "react-router-dom";
+// import useToastListener from "../toaster/ToastListenerHook";
+// import UseInfoHook from "./UseInfoHook";
+// import {
+//   UserInfoPresenter,
+//   UserInfoView,
+// } from "../../presenter/UserInfoPresenter";
+
+// const UserInfo = () => {
+//   const { displayErrorMessage, displayInfoMessage, clearLastInfoMessage } =
+//     useToastListener();
+
+//   const { currentUser, authToken, displayedUser, setDisplayedUser } =
+//     UseInfoHook();
+
+//   if (!displayedUser) {
+//     setDisplayedUser(currentUser!);
+//     console.log("UserInfo displayedUser swtiched to: ", displayedUser);
+//   }
+
+//   const listener: UserInfoView = {
+//     displayErrorMessage: displayErrorMessage,
+//     displayInfoMessage: displayInfoMessage,
+//     clearLastInfoMessage: clearLastInfoMessage,
+//   };
+
+//   const [presenter] = useState(new UserInfoPresenter(listener));
+
+//   useEffect(() => {
+//     presenter.setIsFollowerStatus(authToken!, currentUser!, displayedUser!);
+//     presenter.setNumbFollowees(authToken!, displayedUser!);
+//     presenter.setNumbFollowers(authToken!, displayedUser!);
+//   });
+
+//   const switchToLoggedInUser = (event: React.MouseEvent): void => {
+//     event.preventDefault();
+//     setDisplayedUser(currentUser!);
+//   };
+
+//   const followDisplayedUser = async (
+//     event: React.MouseEvent
+//   ): Promise<void> => {
+//     console.log("followDisplayedUser curentUser: ", currentUser);
+//     event.preventDefault();
+//     await presenter.followDisplayedUser(displayedUser!, authToken!);
+//   };
+
+//   const unfollowDisplayedUser = async (
+//     event: React.MouseEvent
+//   ): Promise<void> => {
+//     console.log("unfollowDisplayedUser curentUser: ", currentUser);
+//     event.preventDefault();
+//     await presenter.unfollowDisplayedUser(displayedUser!, authToken!);
+//   };
+
+//   return (
+//     <>
+//       {currentUser === null || displayedUser === null || authToken === null ? (
+//         <></>
+//       ) : (
+//         <div className="container">
+//           <div className="row">
+//             <div className="col-auto p-3">
+//               <img
+//                 src={displayedUser.imageUrl}
+//                 className="img-fluid"
+//                 width="100"
+//                 alt="Posting user"
+//               />
+//             </div>
+//             <div className="col p-3">
+//               {displayedUser !== currentUser && (
+//                 <p id="returnToLoggedInUser">
+//                   Return to{" "}
+//                   <Link
+//                     to={""}
+//                     onClick={(event) => switchToLoggedInUser(event)}
+//                   >
+//                     logged in user
+//                   </Link>
+//                 </p>
+//               )}
+//               <h2>
+//                 <b>{displayedUser.name}</b>
+//               </h2>
+//               <h3>{displayedUser.alias}</h3>
+//               <br />
+//               {presenter.FolloweesCount > -1 &&
+//                 presenter.FollowersCount > -1 && (
+//                   <div>
+//                     Following: {presenter.FolloweesCount} Followers:{" "}
+//                     {presenter.FollowersCount}
+//                   </div>
+//                 )}
+//             </div>
+//             <form>
+//               {displayedUser !== currentUser && (
+//                 <div className="form-group">
+//                   {presenter.IsFollowerStatus ? (
+//                     <button
+//                       id="unFollowButton"
+//                       className="btn btn-md btn-secondary me-1"
+//                       type="submit"
+//                       onClick={(event) => unfollowDisplayedUser(event)}
+//                     >
+//                       Unfollow
+//                     </button>
+//                   ) : (
+//                     <button
+//                       id="followButton"
+//                       className="btn btn-md btn-primary me-1"
+//                       type="submit"
+//                       onClick={(event) => followDisplayedUser(event)}
+//                     >
+//                       Follow
+//                     </button>
+//                   )}
+//                 </div>
+//               )}
+//             </form>
+//           </div>
+//         </div>
+//       )}
+//     </>
+//   );
+// };
+//
+// export default UserInfo;
+
+// import "./UserInfo.css";
+// import { useEffect, useState } from "react";
+// import { Link } from "react-router-dom";
+// import useToastListener from "../toaster/ToastListenerHook";
+// import UseInfoHook from "./UseInfoHook";
+// import {
+//   UserInfoPresenter,
+//   UserInfoView,
+// } from "../../presenter/UserInfoPresenter";
+
+// const UserInfo = () => {
+//   const { displayErrorMessage, displayInfoMessage, clearLastInfoMessage } =
+//     useToastListener();
+
+//   const { currentUser, authToken, displayedUser, setDisplayedUser } =
+//     UseInfoHook();
+//   if (!displayedUser) {
+//     setDisplayedUser(currentUser!);
+//   }
+
+//   const listener: UserInfoView = {
+//     displayErrorMessage: displayErrorMessage,
+//     displayInfoMessage: displayInfoMessage,
+//     clearLastInfoMessage: clearLastInfoMessage,
+//   };
+
+//   const [presenter] = useState(new UserInfoPresenter(listener));
+
+//   useEffect(() => {
+//     presenter.setIsFollowerStatus(authToken!, currentUser!, displayedUser!);
+//     presenter.setNumbFollowees(authToken!, displayedUser!);
+//     presenter.setNumbFollowers(authToken!, displayedUser!);
+//   });
+
+//   const switchToLoggedInUser = (event: React.MouseEvent): void => {
+//     event.preventDefault();
+//     setDisplayedUser(currentUser!);
+//   };
+
+//   const followDisplayedUser = async (
+//     event: React.MouseEvent
+//   ): Promise<void> => {
+//     event.preventDefault();
+//     await presenter.followDisplayedUser(authToken!, currentUser!!);
+//   };
+
+//   const unfollowDisplayedUser = async (
+//     event: React.MouseEvent
+//   ): Promise<void> => {
+//     event.preventDefault();
+//     await presenter.unfollowDisplayedUser(authToken!, currentUser!!);
+//   };
+
+//   return (
+//     <>
+//       {currentUser === null || displayedUser === null || authToken === null ? (
+//         <></>
+//       ) : (
+//         <div className="container">
+//           <div className="row">
+//             <div className="col-auto p-3">
+//               <img
+//                 src={displayedUser.imageUrl}
+//                 className="img-fluid"
+//                 width="100"
+//                 alt="Posting user"
+//               />
+//             </div>
+//             <div className="col p-3">
+//               {displayedUser !== currentUser && (
+//                 <p id="returnToLoggedInUser">
+//                   Return to{" "}
+//                   <Link
+//                     to={""}
+//                     onClick={(event) => switchToLoggedInUser(event)}
+//                   >
+//                     logged in user
+//                   </Link>
+//                 </p>
+//               )}
+//               <h2>
+//                 <b>{displayedUser.name}</b>
+//               </h2>
+//               <h3>{displayedUser.alias}</h3>
+//               <br />
+//               {presenter.FollowerCount > -1 && presenter.FollowerCount > -1 && (
+//                 <div>
+//                   Following: {presenter.FolloweeCount} Followers:{" "}
+//                   {presenter.FollowerCount}
+//                 </div>
+//               )}
+//             </div>
+//             <form>
+//               {displayedUser !== currentUser && (
+//                 <div className="form-group">
+//                   {presenter.IsFollower ? (
+//                     <button
+//                       id="unFollowButton"
+//                       className="btn btn-md btn-secondary me-1"
+//                       type="submit"
+//                       onClick={(event) => unfollowDisplayedUser(event)}
+//                     >
+//                       Unfollow
+//                     </button>
+//                   ) : (
+//                     <button
+//                       id="followButton"
+//                       className="btn btn-md btn-primary me-1"
+//                       type="submit"
+//                       onClick={(event) => followDisplayedUser(event)}
+//                     >
+//                       Follow
+//                     </button>
+//                   )}
+//                 </div>
+//               )}
+//             </form>
+//           </div>
+//         </div>
+//       )}
+//     </>
+//   );
+// };
+
+// export default UserInfo;

@@ -10,7 +10,7 @@ interface Props {
   inputFieldGenerator: () => JSX.Element;
   switchAuthenticationMethodGenerator: () => JSX.Element;
   setRememberMe: (value: boolean) => void;
-  submitButtonDisabled: () => boolean;
+  submitButtonDisabled: boolean;
   submit: () => void;
 }
 
@@ -62,7 +62,7 @@ const AuthenticationFormLayout = (props: Props) => {
               id="submitButton"
               className="w-100 btn btn-lg btn-primary"
               type="button"
-              disabled={props.submitButtonDisabled()}
+              disabled={props.submitButtonDisabled}
               onClick={() => props.submit()}
             >
               {props.submitButtonLabel}

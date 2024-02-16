@@ -3,13 +3,28 @@ import "bootstrap/dist/css/bootstrap.css";
 import { ChangeEvent, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import AuthenticationFormLayout from "../AuthenticationFormLayout";
-import { AuthToken, FakeData, User } from "tweeter-shared";
-import { Buffer } from "buffer";
 import useToastListener from "../../toaster/ToastListenerHook";
 import AuthenticationFields from "../AuthenticationFields";
 import UseInfoHook from "../../userInfo/UseInfoHook";
+import { RegisterPresenter } from "../../../presenter/RegisterPresenter";
+import { AuthenticationView } from "../../../presenter/AuthenticationPresenter";
 
+//State variables that the user see, they will stay in the view
 const Register = () => {
+  const navigate = useNavigate();
+  const { updateUserInfo } = UseInfoHook();
+  const { displayErrorMessage } = useToastListener();
+  const [submitDisabled, setSubmitDisabled] = useState(true);
+
+  const listener: AuthenticationView = {
+    updateUserInfo: updateUserInfo,
+    displayErrorMessage: displayErrorMessage,
+    navigate: navigate,
+    updateSubmitButtonStatus: setSubmitDisabled,
+    // setAlias,
+  };
+
+  const [presenter] = useState(new RegisterPresenter(listener));
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [alias, setAlias] = useState("");
@@ -21,83 +36,9 @@ const Register = () => {
   const rememberMeRef = useRef(rememberMe);
   rememberMeRef.current = rememberMe;
 
-  const navigate = useNavigate();
-  const { updateUserInfo } = UseInfoHook();
-  const { displayErrorMessage } = useToastListener();
-
-  const checkSubmitButtonStatus = (): boolean => {
-    return !firstName || !lastName || !alias || !password || !imageUrl;
-  };
-
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    handleImageFile(file);
-  };
-
-  const handleImageFile = (file: File | undefined) => {
-    if (file) {
-      setImageUrl(URL.createObjectURL(file));
-
-      const reader = new FileReader();
-      reader.onload = (event: ProgressEvent<FileReader>) => {
-        const imageStringBase64 = event.target?.result as string;
-
-        // Remove unnecessary file metadata from the start of the string.
-        const imageStringBase64BufferContents =
-          imageStringBase64.split("base64,")[1];
-
-        const bytes: Uint8Array = Buffer.from(
-          imageStringBase64BufferContents,
-          "base64"
-        );
-
-        setImageBytes(bytes);
-      };
-      reader.readAsDataURL(file);
-    } else {
-      setImageUrl("");
-      setImageBytes(new Uint8Array());
-    }
-  };
-
-  const doRegister = async () => {
-    try {
-      let [user, authToken] = await register(
-        firstName,
-        lastName,
-        alias,
-        password,
-        imageBytes
-      );
-
-      updateUserInfo(user, user, authToken, rememberMeRef.current);
-      navigate("/");
-    } catch (error) {
-      displayErrorMessage(
-        `Failed to register user because of exception: ${error}`
-      );
-    }
-  };
-
-  const register = async (
-    firstName: string,
-    lastName: string,
-    alias: string,
-    password: string,
-    userImageBytes: Uint8Array
-  ): Promise<[User, AuthToken]> => {
-    // Not neded now, but will be needed when you make the request to the server in milestone 3
-    let imageStringBase64: string =
-      Buffer.from(userImageBytes).toString("base64");
-
-    // TODO: Replace with the result of calling the server
-    let user = FakeData.instance.firstUser;
-
-    if (user === null) {
-      throw new Error("Invalid registration");
-    }
-
-    return [user, FakeData.instance.authToken];
+    presenter.handleImageFile(file);
   };
 
   const inputFieldGenerator = () => {
@@ -110,7 +51,7 @@ const Register = () => {
             size={50}
             id="firstNameInput"
             placeholder="First Name"
-            onChange={(event) => setFirstName(event.target.value)}
+            onChange={(event) => (presenter.FirstName = event.target.value)}
           />
           <label htmlFor="firstNameInput">First Name</label>
         </div>
@@ -121,15 +62,13 @@ const Register = () => {
             size={50}
             id="lastNameInput"
             placeholder="Last Name"
-            onChange={(event) => setLastName(event.target.value)}
+            onChange={(event) => (presenter.LastName = event.target.value)}
           />
           <label htmlFor="lastNameInput">Last Name</label>
         </div>
         <AuthenticationFields
-          alias={alias}
-          setAlias={setAlias}
-          password={password}
-          setPassword={setPassword}
+          setAlias={(value: string) => (presenter.Alias = value)}
+          setPassword={(value: string) => (presenter.Password = value)}
         />
         <div className="form-floating mb-3">
           <input
@@ -139,7 +78,7 @@ const Register = () => {
             onChange={handleFileChange}
           />
           <label htmlFor="imageFileInput">User Image</label>
-          <img src={imageUrl} className="img-thumbnail" alt=""></img>
+          <img src={presenter.ImageURL} className="img-thumbnail" alt=""></img>
         </div>
       </>
     );
@@ -161,8 +100,8 @@ const Register = () => {
       inputFieldGenerator={inputFieldGenerator}
       switchAuthenticationMethodGenerator={switchAuthenticationMethodGenerator}
       setRememberMe={setRememberMe}
-      submitButtonDisabled={checkSubmitButtonStatus}
-      submit={doRegister}
+      submitButtonDisabled={submitDisabled}
+      submit={() => presenter.doRegister(rememberMeRef.current, imageUrl)}
     />
   );
 };

@@ -39,7 +39,6 @@ interface Props {
   children: React.ReactNode;
 }
 
-// Model class for the userinfo
 const UserInfoProvider: React.FC<Props> = ({ children }) => {
   const saveToLocalStorage = (
     currentUser: User,

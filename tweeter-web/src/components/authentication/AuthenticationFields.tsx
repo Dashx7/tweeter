@@ -1,18 +1,11 @@
 import React from "react";
 
-interface AuthenticationFieldsProps {
-  alias: string;
+interface Props {
   setAlias: (alias: string) => void;
-  password: string;
   setPassword: (password: string) => void;
 }
 
-const AuthenticationFields: React.FC<AuthenticationFieldsProps> = ({
-  alias,
-  setAlias,
-  password,
-  setPassword,
-}) => {
+const AuthenticationFields = (props: Props) => {
   return (
     <>
       <div className="form-floating">
@@ -22,8 +15,7 @@ const AuthenticationFields: React.FC<AuthenticationFieldsProps> = ({
           size={50}
           id="aliasInput"
           placeholder="name@example.com"
-          value={alias}
-          onChange={(event) => setAlias(event.target.value)}
+          onChange={(event) => props.setAlias(event.target.value)}
         />
         <label htmlFor="aliasInput">Alias</label>
       </div>
@@ -33,8 +25,7 @@ const AuthenticationFields: React.FC<AuthenticationFieldsProps> = ({
           className="form-control bottom"
           id="passwordInput"
           placeholder="Password"
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
+          onChange={(event) => props.setPassword(event.target.value)}
         />
         <label htmlFor="passwordInput">Password</label>
       </div>
