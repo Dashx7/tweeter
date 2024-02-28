@@ -4,31 +4,30 @@ import { StatusItemPresenter, StatusItemView } from "./StatusItemPresenter";
 
 export const PAGE_SIZE = 10;
 
+//TODO, extract out more common code between StoryPresenter and FeedPresenter
 export class FeedPresenter extends StatusItemPresenter {
-    private lastItem: Status | null = null;
-
     public constructor(view: StatusItemView) {
         super(view);
     }
 
+    protected get view(): StatusItemView {
+        return this.view as StatusItemView;
+    }
+
     public async loadMoreItems(authToken: AuthToken, displayedUser: User) {
-        try {
+        this.DoFailureReportingOperation(async () => {
             if (this.getHasMoreItems()) {
                 let [newItems, hasMore] = await this.service.loadMoreFeedItems(
                     authToken!,
                     displayedUser!,
                     PAGE_SIZE,
-                    this.lastItem
+                    this.lastItemStatus
                 );
 
                 this.setHasMoreItems(hasMore);
-                this.lastItem = (newItems[newItems.length - 1]);
+                this.lastItemStatus = (newItems[newItems.length - 1]);
                 this.view.addItems(newItems);
             }
-        } catch (error) {
-            this.view.displayErrorMessage(
-                `Failed to load Feed items because of exception: ${error}`
-            );
-        }
+        }, "load feed items");
     };
 }   

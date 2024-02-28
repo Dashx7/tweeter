@@ -12,6 +12,10 @@ export class RegisterPresenter extends AuthenticationPresenter {
         super(view);
     }
 
+    protected get view(): AuthenticationView {
+        return this.view as AuthenticationView;
+    }
+
     public async doRegister(rememberMeRef: boolean, url: string | undefined) {
         try {
             let [user, authToken] = await this.Service.register(

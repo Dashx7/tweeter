@@ -5,8 +5,12 @@ export class LoginPresenter extends AuthenticationPresenter {
         super(view);
     }
 
+    protected get view(): AuthenticationView {
+        return this.view as AuthenticationView;
+    }
+
     public async doLogin(rememberMeRef: boolean, url: string | undefined) {
-        try {
+        this.DoFailureReportingOperation(async () => {
             let [user, authToken] = await this.Service.login(this.Alias, this.Password);
 
             this.view.updateUserInfo(user, user, authToken, rememberMeRef);
@@ -16,11 +20,7 @@ export class LoginPresenter extends AuthenticationPresenter {
             } else {
                 this.view.navigate("/");
             }
-        } catch (error) {
-            this.view.displayErrorMessage(
-                `Failed to log user in because of exception: ${error}`
-            );
-        }
+        }, "log user in");
     };
 
     public updateSubmitButtonStatus(): void {

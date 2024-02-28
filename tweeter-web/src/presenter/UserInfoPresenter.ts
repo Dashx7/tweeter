@@ -1,15 +1,14 @@
 import { AuthToken, User } from "tweeter-shared";
 import { FollowService } from "../model_service/FollowService";
+import { BasicView, Presenter } from "./Presenter";
 
-export interface UserInfoView {
-    displayErrorMessage: (message: string) => void;
+export interface UserInfoView extends BasicView {
     displayInfoMessage: (message: string, duration: number) => void;
     clearLastInfoMessage: () => void;
     infoChanged: () => void;
 }
 
-export class UserInfoPresenter {
-    private view: UserInfoView;
+export class UserInfoPresenter extends Presenter {
     private service: FollowService;
 
     private _isFollower = false;
@@ -17,8 +16,12 @@ export class UserInfoPresenter {
     private _followersCount = -1;
 
     public constructor(view: UserInfoView) {
-        this.view = view;
+        super(view);
         this.service = new FollowService();
+    }
+
+    protected get view(): UserInfoView {
+        return this.view as UserInfoView;
     }
 
     public get isFollower() {

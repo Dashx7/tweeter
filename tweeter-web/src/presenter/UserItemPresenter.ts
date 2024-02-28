@@ -1,16 +1,16 @@
 import { AuthToken, User } from "tweeter-shared";
+import { BasicView, Presenter } from "./Presenter";
 
-export interface UserItemView {
+export interface UserItemView extends BasicView {
     addItems: (items: User[]) => void;
-    displayErrorMessage: (message: string) => void;
 }
 
-export abstract class UserItemPresenter {
-    private _view: UserItemView;
+export abstract class UserItemPresenter extends Presenter {
     private hasMoreItems: boolean = true;
+    private lastItem: User | null = null;
 
     protected constructor(view: UserItemView) {
-        this._view = view;
+        super(view);
     }
 
     public getHasMoreItems(): boolean {
@@ -20,8 +20,12 @@ export abstract class UserItemPresenter {
         this.hasMoreItems = hasMore;
     }
 
-    protected get view() {
-        return this._view;
+    protected get lastItemUser(): User | null {
+        return this.lastItem;
+    }
+
+    protected set lastItemUser(user: User | null) {
+        this.lastItem = user;
     }
 
     public abstract loadMoreItems(authToken: AuthToken, displayedUser: User): void;

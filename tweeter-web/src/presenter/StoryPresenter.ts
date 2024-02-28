@@ -4,11 +4,15 @@ import { StatusItemPresenter, StatusItemView } from "./StatusItemPresenter";
 
 export const PAGE_SIZE = 10;
 
+//TODO, extract out more common code between StoryPresenter and FeedPresenter
 export class StoryPresenter extends StatusItemPresenter {
-    private lastItem: Status | null = null;
 
     public constructor(view: StatusItemView) {
         super(view);
+    }
+
+    protected get view(): StatusItemView {
+        return this.view as StatusItemView;
     }
 
     public async loadMoreItems(authToken: AuthToken, displayedUser: User) {
@@ -18,11 +22,10 @@ export class StoryPresenter extends StatusItemPresenter {
                     authToken!,
                     displayedUser!,
                     PAGE_SIZE,
-                    this.lastItem
+                    this.lastItemStatus
                 );
-
                 this.setHasMoreItems(hasMore);
-                this.lastItem = (newItems[newItems.length - 1]);
+                this.lastItemStatus = (newItems[newItems.length - 1]);
                 this.view.addItems(newItems);
             }
         } catch (error) {

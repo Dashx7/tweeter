@@ -4,32 +4,27 @@ import { UserItemPresenter, UserItemView } from "./UserItemPresenter";
 
 export const PAGE_SIZE = 10;
 
-
+//TODO, extract out more common code between FollowingPresenter and FollowerPresenter
 export class FollowersPresenter extends UserItemPresenter {
     private service: FollowService;
-
-    private lastItem: User | null = null;
-
 
     public constructor(view: UserItemView) {
         super(view);
         this.service = new FollowService();
     }
 
+    protected get view(): UserItemView {
+        return this.view as UserItemView;
+    }
+
     public async loadMoreItems(authToken: AuthToken, user: User) {
-        try {
+        this.DoFailureReportingOperation(async () => {
             if (this.getHasMoreItems()) {
-                let [newItems, hasMore] = await this.service.loadMoreFollowers(authToken, user, PAGE_SIZE, this.lastItem);
-
-
+                let [newItems, hasMore] = await this.service.loadMoreFollowers(authToken, user, PAGE_SIZE, this.lastItemUser);
                 this.setHasMoreItems(hasMore);
-                this.lastItem = newItems[newItems.length - 1];
+                this.lastItemUser = newItems[newItems.length - 1];
                 this.view.addItems(newItems);
             }
-        } catch (error) {
-            this.view.displayErrorMessage(
-                `Failed to load follower items because of exception: ${error}`
-            );
-        }
+        }, "load follower items");
     };
 }

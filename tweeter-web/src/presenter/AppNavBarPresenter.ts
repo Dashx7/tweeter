@@ -2,33 +2,33 @@ import { AuthToken } from "tweeter-shared";
 import useToastListener from "../components/toaster/ToastListenerHook";
 import UseInfoHook from "../components/userInfo/UseInfoHook";
 import { UserService } from "../model_service/UserService";
+import { BasicView, Presenter } from "./Presenter";
 
-export interface AppNavbarView {
-    displayErrorMessage: (message: string) => void;
+export interface AppNavbarView extends BasicView {
     displayInfoMessage: (message: string, duration: number) => void;
     clearLastInfoMessage: () => void;
     clearUserInfo: () => void;
 }
 
-export class AppNavbarPresenter {
-    public myView: AppNavbarView;
+export class AppNavbarPresenter extends Presenter {
     private service: UserService = new UserService();
 
     public constructor(view: AppNavbarView) {
-        this.myView = view;
+        super(view);
+    }
+
+    protected get view(): AppNavbarView {
+        return this.view as AppNavbarView;
     }
 
     public async logOut(authToken: AuthToken): Promise<void> {
-        this.myView.displayInfoMessage("Logging Out...", 0);
-
-        try {
+        this.view.displayErrorMessage("Logging Out...");
+        this.DoFailureReportingOperation(async () => {
             await this.logout(authToken);
 
-            this.myView.clearLastInfoMessage();
-            this.myView.clearUserInfo();
-        } catch (error) {
-            this.myView.displayErrorMessage(`Failed to log user out because of exception: ${error}`);
-        }
+            this.view.clearLastInfoMessage();
+            this.view.clearUserInfo();
+        }, "log user out");
     }
 
     private async logout(authToken: AuthToken): Promise<void> {
