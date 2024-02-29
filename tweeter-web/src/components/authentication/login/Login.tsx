@@ -20,10 +20,10 @@ const Login = (props: Props) => {
   const [submitDisabled, setSubmitDisabled] = useState(true);
 
   const listener: AuthenticationView = {
-    updateUserInfo: updateUserInfo,
+    updateUserInfo: (user, displayedUser, authToken) =>
+      updateUserInfo(user, displayedUser, authToken, rememberMeRef.current),
     displayErrorMessage: displayErrorMessage,
     navigate: navigate,
-    updateSubmitButtonStatus: setSubmitDisabled,
   };
   const [presenter] = useState(new LoginPresenter(listener));
 
@@ -37,8 +37,8 @@ const Login = (props: Props) => {
   const inputFieldGenerator = () => {
     return (
       <AuthenticationFields
-        setAlias={(value: string) => (presenter.Alias = value)}
-        setPassword={(value: string) => (presenter.Password = value)}
+        setAlias={(value: string) => setAlias(value)}
+        setPassword={(value: string) => setPassword(value)}
       />
     );
   };
@@ -59,8 +59,10 @@ const Login = (props: Props) => {
       inputFieldGenerator={inputFieldGenerator}
       switchAuthenticationMethodGenerator={switchAuthenticationMethodGenerator}
       setRememberMe={setRememberMe}
-      submitButtonDisabled={submitDisabled}
-      submit={() => presenter.doLogin(rememberMeRef.current, props.originalUrl)}
+      submitButtonDisabled={() =>
+        presenter.checkSubmitButtonStatus(alias, password)
+      }
+      submit={() => presenter.doLogin(props.originalUrl, alias, password)}
     />
   );
 };

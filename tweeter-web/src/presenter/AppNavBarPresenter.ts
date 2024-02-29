@@ -1,12 +1,8 @@
 import { AuthToken } from "tweeter-shared";
-import useToastListener from "../components/toaster/ToastListenerHook";
-import UseInfoHook from "../components/userInfo/UseInfoHook";
 import { UserService } from "../model_service/UserService";
-import { BasicView, Presenter } from "./Presenter";
+import { BasicView, MessageView, Presenter } from "./Presenter";
 
-export interface AppNavbarView extends BasicView {
-    displayInfoMessage: (message: string, duration: number) => void;
-    clearLastInfoMessage: () => void;
+export interface AppNavbarView extends MessageView {
     clearUserInfo: () => void;
 }
 
@@ -18,7 +14,7 @@ export class AppNavbarPresenter extends Presenter {
     }
 
     protected get view(): AppNavbarView {
-        return this.view as AppNavbarView;
+        return super.view as AppNavbarView;
     }
 
     public async logOut(authToken: AuthToken): Promise<void> {

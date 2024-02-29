@@ -1,33 +1,14 @@
 //Make the View as dumb as possible, and put all the logic in the Presenter. 
-import { AuthToken, Status, User } from "tweeter-shared";
-import { StatusItemPresenter, StatusItemView } from "./StatusItemPresenter";
-
-export const PAGE_SIZE = 10;
+import { AuthToken, User } from "tweeter-shared";
+import { StatusItemPresenter } from "./StatusItemPresenter";
+import { PAGE_SIZE } from "./PagedItemPresenter";
 
 //TODO, extract out more common code between StoryPresenter and FeedPresenter
 export class FeedPresenter extends StatusItemPresenter {
-    public constructor(view: StatusItemView) {
-        super(view);
+    protected getItemDescription(): string {
+        return "load feed items";
     }
-
-    protected get view(): StatusItemView {
-        return this.view as StatusItemView;
+    protected getMoreItems(authToken: AuthToken, user: User): Promise<[any[], boolean]> {
+        return this.service.loadMoreFeedItems(authToken, user, PAGE_SIZE, this.lastItem);
     }
-
-    public async loadMoreItems(authToken: AuthToken, displayedUser: User) {
-        this.DoFailureReportingOperation(async () => {
-            if (this.getHasMoreItems()) {
-                let [newItems, hasMore] = await this.service.loadMoreFeedItems(
-                    authToken!,
-                    displayedUser!,
-                    PAGE_SIZE,
-                    this.lastItemStatus
-                );
-
-                this.setHasMoreItems(hasMore);
-                this.lastItemStatus = (newItems[newItems.length - 1]);
-                this.view.addItems(newItems);
-            }
-        }, "load feed items");
-    };
 }   

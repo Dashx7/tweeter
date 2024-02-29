@@ -14,23 +14,22 @@ const Register = () => {
   const navigate = useNavigate();
   const { updateUserInfo } = UseInfoHook();
   const { displayErrorMessage } = useToastListener();
-  const [submitDisabled, setSubmitDisabled] = useState(true);
 
   const listener: AuthenticationView = {
-    updateUserInfo: updateUserInfo,
+    updateUserInfo: (user, displayedUser, authToken) =>
+      updateUserInfo(user, displayedUser, authToken, rememberMeRef.current),
     displayErrorMessage: displayErrorMessage,
     navigate: navigate,
-    updateSubmitButtonStatus: setSubmitDisabled,
-    // setAlias,
   };
 
+  //Use state variables to keep track of the state of the view
   const [presenter] = useState(new RegisterPresenter(listener));
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [alias, setAlias] = useState("");
   const [password, setPassword] = useState("");
   const [imageBytes, setImageBytes] = useState<Uint8Array>(new Uint8Array());
-  const [imageUrl, setImageUrl] = useState<string>("");
+  // const [imageUrl, setImageUrl] = useState<string>("");
   const [rememberMe, setRememberMe] = useState(false);
 
   const rememberMeRef = useRef(rememberMe);
@@ -38,7 +37,7 @@ const Register = () => {
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    presenter.handleImageFile(file);
+    setImageBytes(presenter.handleImageFile(file));
   };
 
   const inputFieldGenerator = () => {
@@ -51,7 +50,7 @@ const Register = () => {
             size={50}
             id="firstNameInput"
             placeholder="First Name"
-            onChange={(event) => (presenter.FirstName = event.target.value)}
+            onChange={(event) => setFirstName(event.target.value)}
           />
           <label htmlFor="firstNameInput">First Name</label>
         </div>
@@ -62,13 +61,13 @@ const Register = () => {
             size={50}
             id="lastNameInput"
             placeholder="Last Name"
-            onChange={(event) => (presenter.LastName = event.target.value)}
+            onChange={(event) => setLastName(event.target.value)}
           />
           <label htmlFor="lastNameInput">Last Name</label>
         </div>
         <AuthenticationFields
-          setAlias={(value: string) => (presenter.Alias = value)}
-          setPassword={(value: string) => (presenter.Password = value)}
+          setAlias={(value: string) => setAlias(value)}
+          setPassword={(value: string) => setPassword(value)}
         />
         <div className="form-floating mb-3">
           <input
@@ -87,7 +86,7 @@ const Register = () => {
   const switchAuthenticationMethodGenerator = () => {
     return (
       <div className="mb-3">
-        Algready registered? <Link to="/login">Sign in</Link>
+        Already registered? <Link to="/login">Sign in</Link>
       </div>
     );
   };
@@ -100,8 +99,12 @@ const Register = () => {
       inputFieldGenerator={inputFieldGenerator}
       switchAuthenticationMethodGenerator={switchAuthenticationMethodGenerator}
       setRememberMe={setRememberMe}
-      submitButtonDisabled={submitDisabled}
-      submit={() => presenter.doRegister(rememberMeRef.current, imageUrl)}
+      submitButtonDisabled={() =>
+        presenter.checkSubmitButtonStatus(alias, password, firstName, lastName)
+      }
+      submit={() =>
+        presenter.doRegister(alias, password, firstName, lastName, imageBytes)
+      }
     />
   );
 };

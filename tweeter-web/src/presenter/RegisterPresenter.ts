@@ -2,47 +2,38 @@ import { Buffer } from "buffer";
 import { AuthenticationPresenter, AuthenticationView } from "./AuthenticationPresenter";
 
 export class RegisterPresenter extends AuthenticationPresenter {
-
-    private firstName: string = "";
-    private lastName: string = "";
-    private imageBytes: Uint8Array = new Uint8Array(0);
     private imageURL: string = "";
 
     public constructor(view: AuthenticationView) {
         super(view);
     }
 
-    protected get view(): AuthenticationView {
-        return this.view as AuthenticationView;
+
+
+    public async doRegister(Alias: string, Password: string, firstName: string, lastName: string, imageBytes: Uint8Array) {
+        this.doAuthentication(() => this.Service.register(
+            firstName,
+            lastName,
+            Alias,
+            Password,
+            imageBytes
+        ), "register user");
     }
 
-    public async doRegister(rememberMeRef: boolean, url: string | undefined) {
-        try {
-            let [user, authToken] = await this.Service.register(
-                this.firstName,
-                this.lastName,
-                this.Alias,
-                this.Password,
-                this.imageBytes
-            );
-
-            this.view.updateUserInfo(user, user, authToken, rememberMeRef);
-            this.view.navigate("/");
-        } catch (error) {
-            this.view.displayErrorMessage(
-                `Failed to register user because of exception: ${error}`
-            );
-        }
-    }
-
-    public updateSubmitButtonStatus(): void {
-        this.view.updateSubmitButtonStatus(
-            !this.Alias || !this.Password || !this.firstName || !this.lastName || this.imageURL.length === 0);
-    }
+    public checkSubmitButtonStatus(
+        Alias: string,
+        Password: string,
+        firstName: string,
+        lastName: string): boolean {
+        console.log("checking submit button status")
+        console.log(`Printing image url ${this.ImageURL}`)
+        return (!Alias || !Password || !firstName || !lastName || this.ImageURL.length === 0);
+    };
 
     public handleImageFile = (file: File | undefined) => {
         if (file) {
             this.ImageURL = URL.createObjectURL(file);
+            console.log(`Set image URL ${this.ImageURL}`)
 
             const reader = new FileReader();
             reader.onload = (event: ProgressEvent<FileReader>) => {
@@ -57,42 +48,23 @@ export class RegisterPresenter extends AuthenticationPresenter {
                     "base64"
                 );
 
-                this.ImageBytes = bytes;
+                return bytes;
             };
             reader.readAsDataURL(file);
         } else {
             this.ImageURL = "";
-            this.ImageBytes = new Uint8Array();
         }
+
+        return new Uint8Array();
+
     };
 
-    public set FirstName(firstName: string) {
-        this.firstName = firstName;
-        this.updateSubmitButtonStatus();
+    public set ImageURL(value: string) {
+        this.imageURL = value;
     }
-    public set LastName(lastName: string) {
-        this.lastName = lastName;
-        this.updateSubmitButtonStatus();
-    }
-    public set ImageBytes(imageBytes: Uint8Array) {
-        this.imageBytes = imageBytes;
-        this.updateSubmitButtonStatus();
-    }
-    public set ImageURL(imageURL: string) {
-        this.imageURL = imageURL;
-        this.updateSubmitButtonStatus();
-    }
+
     public get ImageURL() {
         return this.imageURL;
-    }
-    public get FirstName() {
-        return this.firstName;
-    }
-    public get LastName() {
-        return this.lastName;
-    }
-    public get ImageBytes() {
-        return this.imageBytes;
     }
 
 }

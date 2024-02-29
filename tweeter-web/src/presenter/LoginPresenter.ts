@@ -5,26 +5,12 @@ export class LoginPresenter extends AuthenticationPresenter {
         super(view);
     }
 
-    protected get view(): AuthenticationView {
-        return this.view as AuthenticationView;
-    }
-
-    public async doLogin(rememberMeRef: boolean, url: string | undefined) {
-        this.DoFailureReportingOperation(async () => {
-            let [user, authToken] = await this.Service.login(this.Alias, this.Password);
-
-            this.view.updateUserInfo(user, user, authToken, rememberMeRef);
-
-            if (url) {
-                this.view.navigate(url);
-            } else {
-                this.view.navigate("/");
-            }
-        }, "log user in");
+    public async doLogin(url: string | undefined, Alias: string, Password: string) {
+        this.doAuthentication(() => this.Service.login(Alias, Password), "log user in", url);
     };
 
-    public updateSubmitButtonStatus(): void {
-        this.view.updateSubmitButtonStatus(!this.Alias || !this.Password);
-    }
+    public checkSubmitButtonStatus(alias: string, password: string): boolean {
+        return !alias || !password;
+    };
 
 }

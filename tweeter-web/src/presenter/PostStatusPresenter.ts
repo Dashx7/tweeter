@@ -1,10 +1,8 @@
 import { AuthToken, Status, User } from "tweeter-shared";
 import { StatusService } from "../model_service/StatusService";
-import { BasicView, Presenter } from "./Presenter";
+import { BasicView, MessageView, Presenter } from "./Presenter";
 
-export interface PostStatusView extends BasicView {
-    displayInfoMessage: (message: string, duration: number) => void;
-    clearLastInfoMessage: () => void;
+export interface PostStatusView extends MessageView {
     setIsPostEmpty: (value: boolean) => void;
     setPostContent: (value: string) => void;
 }
@@ -18,7 +16,7 @@ export class PostStatusPresenter extends Presenter {
     }
 
     protected get view(): PostStatusView {
-        return this.view as PostStatusView;
+        return super.view as PostStatusView;
     }
 
     public submitPost = async (currentUser: User | null, authToken: AuthToken | null) => {
@@ -43,7 +41,4 @@ export class PostStatusPresenter extends Presenter {
     public get Post(): string {
         return this.post;
     }
-
-
-
 }

@@ -15,7 +15,7 @@ export class UserNavigationHookPresenter extends Presenter {
     }
 
     protected get view(): UserNavigationView {
-        return this.view as UserNavigationView;
+        return super.view as UserNavigationView;
     }
 
     public async navigateToUser(event: React.MouseEvent, authToken: AuthToken): Promise<void> {
