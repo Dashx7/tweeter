@@ -8,7 +8,6 @@ export class StoryPresenter extends StatusItemPresenter {
     protected getItemDescription(): string {
         return "load story items";
     }
-
     protected getMoreItems(authToken: AuthToken, user: User): Promise<[any[], boolean]> {
         return this.service.loadMoreStoryItems(authToken, user, PAGE_SIZE, this.lastItem);
     }

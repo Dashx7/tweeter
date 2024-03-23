@@ -11,13 +11,13 @@ import { AuthenticationView } from "../../../presenter/AuthenticationPresenter";
 
 interface Props {
   originalUrl?: string;
+  presenter?: LoginPresenter;
 }
 
 const Login = (props: Props) => {
   const navigate = useNavigate();
   const { updateUserInfo } = UseInfoHook();
   const { displayErrorMessage } = useToastListener();
-  const [submitDisabled, setSubmitDisabled] = useState(true);
 
   const listener: AuthenticationView = {
     updateUserInfo: (user, displayedUser, authToken) =>
@@ -25,7 +25,7 @@ const Login = (props: Props) => {
     displayErrorMessage: displayErrorMessage,
     navigate: navigate,
   };
-  const [presenter] = useState(new LoginPresenter(listener));
+  const [presenter] = useState(props.presenter ?? new LoginPresenter(listener));
 
   const [alias, setAlias] = useState("");
   const [password, setPassword] = useState("");

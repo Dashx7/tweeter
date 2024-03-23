@@ -7,32 +7,40 @@ import {
   PostStatusView,
 } from "../../presenter/PostStatusPresenter";
 
-const PostStatus = () => {
+interface Props {
+  presenter?: PostStatusPresenter;
+}
+
+const PostStatus = (props: Props) => {
   const { displayErrorMessage, displayInfoMessage, clearLastInfoMessage } =
     useToastListener();
-  const [isPostEmpty, setIsPostEmpty] = useState(true);
   const [postContent, setPostContent] = useState("");
+
+  const checkButtonStatus: () => boolean = () => {
+    return !postContent.trim() || !authToken || !currentUser; // If the post content is empty or the user is not logged in, the button should be disabled
+  };
 
   const listener: PostStatusView = {
     displayErrorMessage: displayErrorMessage,
     displayInfoMessage: displayInfoMessage,
     clearLastInfoMessage: clearLastInfoMessage,
-    setIsPostEmpty: setIsPostEmpty,
     setPostContent: setPostContent,
   };
 
-  const [presenter] = useState(new PostStatusPresenter(listener));
+  const [presenter] = useState(
+    props.presenter ?? new PostStatusPresenter(listener)
+  );
 
   const { currentUser, authToken } = UseInfoHook();
 
   const clearPost = (event: React.MouseEvent) => {
     event.preventDefault();
-    presenter.Post = "";
+    setPostContent("");
   };
 
   const submitPost = async (event: React.MouseEvent) => {
     event.preventDefault();
-    presenter.submitPost(currentUser, authToken);
+    presenter.submitPost(currentUser, authToken, postContent);
   };
 
   return (
@@ -44,8 +52,8 @@ const PostStatus = () => {
           rows={10}
           placeholder="What's on your mind?"
           value={postContent}
+          aria-label="textbox"
           onChange={(event) => {
-            presenter.Post = event.target.value;
             setPostContent(event.target.value);
           }}
         />
@@ -55,7 +63,8 @@ const PostStatus = () => {
           id="postStatusButton"
           className="btn btn-md btn-primary me-1"
           type="button"
-          disabled={isPostEmpty || !authToken || !currentUser}
+          disabled={checkButtonStatus()}
+          aria-label="submitButton"
           onClick={(event) => submitPost(event)}
         >
           Post Status
@@ -64,7 +73,8 @@ const PostStatus = () => {
           id="clearStatusButton"
           className="btn btn-md btn-secondary"
           type="button"
-          disabled={isPostEmpty || !authToken || !currentUser}
+          disabled={checkButtonStatus()}
+          aria-label="clearButton"
           onClick={(event) => clearPost(event)}
         >
           Clear

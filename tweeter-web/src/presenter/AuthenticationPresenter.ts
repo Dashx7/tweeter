@@ -6,7 +6,7 @@ export interface AuthenticationView extends BasicView {
     updateUserInfo: (user: User, displayedUser: User | null, authToken: AuthToken) => void;
     navigate: (url: string) => void;
 }
-export abstract class AuthenticationPresenter extends Presenter {
+export class AuthenticationPresenter extends Presenter {
     private service: UserService = new UserService();
 
     protected constructor(view: AuthenticationView) {

@@ -27,10 +27,4 @@ export class Presenter {
     protected get view(): BasicView {
         return this._view;
     }
-
-    // protected set view(view: BasicView) {
-    //     this._view = view;
-    // }
-
-
 }
