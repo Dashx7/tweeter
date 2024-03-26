@@ -75,6 +75,22 @@ export class User {
     }
   }
 
+  public static fromJsonArray(json: string): User[] {
+    let jsonArray = JSON.parse(json);
+    let users: User[] = [];
+    for (let i = 0; i < jsonArray.length; i++) {
+      users.push(
+        new User(
+          jsonArray[i]._firstName,
+          jsonArray[i]._lastName,
+          jsonArray[i]._alias,
+          jsonArray[i]._imageUrl
+        )
+      );
+    }
+    return users;
+  }
+
   public toJson(): string {
     return JSON.stringify(this);
   }

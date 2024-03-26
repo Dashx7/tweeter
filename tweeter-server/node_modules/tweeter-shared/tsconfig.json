@@ -3,7 +3,7 @@
     "target": "ESNext",
     "useDefineForClassFields": true,
     "module": "CommonJS",
-    "lib": ["esnext"],
+    "lib": ["esnext", "ES2021.String"],
     "skipLibCheck": true,
     "outDir": "./dist",
     "declaration": true,

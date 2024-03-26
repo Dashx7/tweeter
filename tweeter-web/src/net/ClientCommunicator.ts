@@ -1,4 +1,4 @@
-import { TweeterRequest } from "./Request"
+import { TweeterRequest } from "tweeter-shared/src/model/net/Request"
 
 export class ClientCommunicator {
     private SERVER_URL: string;

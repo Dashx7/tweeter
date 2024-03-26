@@ -1,4 +1,4 @@
-import { AuthenticateResponse, LoginRequest } from "./Request";
+import { LoginRequest } from "tweeter-shared/src/model/net/Request";
 import { ClientCommunicator } from "./ClientCommunicator";
 
 export class ServerFacade {
