@@ -10,40 +10,40 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FollowService = void 0;
-const FakeData_1 = require("tweeter-shared/src/util/FakeData");
+const tweeter_shared_1 = require("tweeter-shared");
 class FollowService {
     loadMoreFollowers(authToken, user, pageSize, lastItem) {
         return __awaiter(this, void 0, void 0, function* () {
             // TODO: Replace with the result of calling server
-            return FakeData_1.FakeData.instance.getPageOfUsers(lastItem, pageSize, user);
+            return tweeter_shared_1.FakeData.instance.getPageOfUsers(lastItem, pageSize, user);
         });
     }
     ;
     loadMoreFollowees(authToken, user, pageSize, lastItem) {
         return __awaiter(this, void 0, void 0, function* () {
             // TODO: Replace with the result of calling server
-            return FakeData_1.FakeData.instance.getPageOfUsers(lastItem, pageSize, user);
+            return tweeter_shared_1.FakeData.instance.getPageOfUsers(lastItem, pageSize, user);
         });
     }
     ;
     getIsFollowerStatus(authToken, user, selectedUser) {
         return __awaiter(this, void 0, void 0, function* () {
             // TODO: Replace with the result of calling server
-            return FakeData_1.FakeData.instance.isFollower();
+            return tweeter_shared_1.FakeData.instance.isFollower();
         });
     }
     ;
     getFolloweesCount(authToken, user) {
         return __awaiter(this, void 0, void 0, function* () {
             // TODO: Replace with the result of calling server
-            return FakeData_1.FakeData.instance.getFolloweesCount(user);
+            return tweeter_shared_1.FakeData.instance.getFolloweesCount(user);
         });
     }
     ;
     getFollowersCount(authToken, user) {
         return __awaiter(this, void 0, void 0, function* () {
             // TODO: Replace with the result of calling server
-            return FakeData_1.FakeData.instance.getFollowersCount(user);
+            return tweeter_shared_1.FakeData.instance.getFollowersCount(user);
         });
     }
     ;

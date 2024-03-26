@@ -1,6 +1,8 @@
-import { AuthToken } from "tweeter-shared/src/model/domain/AuthToken";
-import { Status } from "tweeter-shared/src/model/domain/Status";
-import { User } from "tweeter-shared/src/model/domain/User";
+// import { AuthToken, Status, User } from "tweeter-shared";
+
+import { AuthToken } from "../domain/AuthToken";
+import { Status } from "../domain/Status";
+import { User } from "../domain/User";
 
 export class TweeterResponse {
     private _success: boolean;
@@ -200,7 +202,7 @@ export class VoidResponse extends TweeterResponse {
 
 export class GetUserResponse extends TweeterResponse {
     private _user: User | null;
-    constructor(success: boolean, message: string | null = null, user: User | null = null) {
+    constructor(success: boolean, user: User | null = null, message: string | null = null) {
         super(success, message);
         this._user = null;
     }
@@ -227,8 +229,8 @@ export class GetUserResponse extends TweeterResponse {
 
         return new GetUserResponse(
             jsonObject._success,
-            jsonObject._message,
-            deserializedUser
+            deserializedUser,
+            jsonObject._message
         );
     }
 }
@@ -237,7 +239,7 @@ export class XFollowResponse extends TweeterResponse {
     private _followers: number;
     private _followees: number;
 
-    constructor(success: boolean, message: string | null = null, followers: number, followees: number) {
+    constructor(success: boolean, followers: number, followees: number, message: string | null = null) {
         super(success, message);
         this._followers = followers;
         this._followees = followees;
@@ -262,9 +264,9 @@ export class XFollowResponse extends TweeterResponse {
 
         return new XFollowResponse(
             jsonObject._success,
-            jsonObject._message,
             jsonObject._followers,
-            jsonObject._followees
+            jsonObject._followees,
+            jsonObject._message
         );
     }
 }
@@ -272,8 +274,8 @@ export class XFollowResponse extends TweeterResponse {
 export class GetFollowXCountResponse extends TweeterResponse {
     private count: number;
 
-    constructor(count: number) {
-        super(true);
+    constructor(success: boolean, count: number, message: string | null = null) {
+        super(success, message);
         this.count = count;
     }
 
@@ -282,7 +284,7 @@ export class GetFollowXCountResponse extends TweeterResponse {
     }
 
     static fromJson(json: JSON): GetFollowXCountResponse {
-        interface GetFollowXCountResponseJson {
+        interface GetFollowXCountResponseJson extends ResponseJson {
             count: number;
         }
 
@@ -290,7 +292,9 @@ export class GetFollowXCountResponse extends TweeterResponse {
             json as unknown as GetFollowXCountResponseJson;
 
         return new GetFollowXCountResponse(
-            jsonObject.count
+            jsonObject._success,
+            jsonObject.count,
+            jsonObject._message
         );
     }
 }

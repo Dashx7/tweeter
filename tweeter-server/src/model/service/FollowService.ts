@@ -1,6 +1,4 @@
-import { AuthToken } from "tweeter-shared/src/model/domain/AuthToken";
-import { User } from "tweeter-shared/src/model/domain/User";
-import { FakeData } from "tweeter-shared/src/util/FakeData";
+import { AuthToken, User, FakeData } from 'tweeter-shared';
 
 
 export class FollowService {

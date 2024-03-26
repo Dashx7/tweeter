@@ -9,8 +9,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ErrorReport = void 0;
-let ErrorReport = (operation) => __awaiter(void 0, void 0, void 0, function* () {
+exports.ErrorReporter = exports.BAD_REQUEST = void 0;
+exports.BAD_REQUEST = '[Bad Request]: ';
+let ErrorReporter = (operation) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         return yield operation();
     }
@@ -19,4 +20,4 @@ let ErrorReport = (operation) => __awaiter(void 0, void 0, void 0, function* () 
         throw new Error(`[Internal Server Error]: ${e.message}`);
     }
 });
-exports.ErrorReport = ErrorReport;
+exports.ErrorReporter = ErrorReporter;

@@ -1,5 +1,5 @@
 export const BAD_REQUEST = '[Bad Request]: ';
-export let ErrorReport = async <T>(operation: () => Promise<T>): Promise<T> => {
+export let ErrorReporter = async <T>(operation: () => Promise<T>): Promise<T> => {
     try {
         return await operation();
     } catch (e) {
