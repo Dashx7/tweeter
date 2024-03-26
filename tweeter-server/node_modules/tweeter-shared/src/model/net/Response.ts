@@ -183,7 +183,7 @@ export class LoadMoreFollowXResponse extends TweeterResponse {
 }
 //Post status and logout responses
 export class VoidResponse extends TweeterResponse {
-    constructor(success: boolean, message: string | null = null) {
+    constructor(success: boolean, voidValue: void, message: string | null = null) {
         super(success, message);
     }
 
@@ -195,6 +195,7 @@ export class VoidResponse extends TweeterResponse {
 
         return new VoidResponse(
             jsonObject._success,
+            undefined,
             jsonObject._message
         );
     }
@@ -294,6 +295,34 @@ export class GetFollowXCountResponse extends TweeterResponse {
         return new GetFollowXCountResponse(
             jsonObject._success,
             jsonObject.count,
+            jsonObject._message
+        );
+    }
+}
+
+export class GetIsFollowerStatusResponse extends TweeterResponse {
+    private isFollower: boolean;
+
+    constructor(success: boolean, isFollower: boolean, message: string | null = null) {
+        super(success, message);
+        this.isFollower = isFollower;
+    }
+
+    getIsFollower() {
+        return this.isFollower;
+    }
+
+    static fromJson(json: JSON): GetIsFollowerStatusResponse {
+        interface GetIsFollowerStatusResponseJson extends ResponseJson {
+            isFollower: boolean;
+        }
+
+        const jsonObject: GetIsFollowerStatusResponseJson =
+            json as unknown as GetIsFollowerStatusResponseJson;
+
+        return new GetIsFollowerStatusResponse(
+            jsonObject._success,
+            jsonObject.isFollower,
             jsonObject._message
         );
     }

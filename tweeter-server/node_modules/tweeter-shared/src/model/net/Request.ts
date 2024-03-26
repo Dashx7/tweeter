@@ -65,6 +65,15 @@ export class LoginRequest extends TweeterRequest {
     }
 }
 
+export class LogoutRequest extends TweeterRequest {
+    authToken: AuthToken;
+
+    constructor(authToken: AuthToken) {
+        super();
+        this.authToken = authToken;
+    }
+}
+
 export class RegisterRequest extends TweeterRequest {
     firstName: string;
     lastName: string;
@@ -109,3 +118,15 @@ export class PostStatusRequest extends TweeterRequest {
     }
 }
 
+export class GetIsFollowerStatusRequest extends TweeterRequest {
+    authToken: AuthToken;
+    user: User;
+    selectedUser: User;
+
+    constructor(authToken: AuthToken, user: User, selectedUser: User) {
+        super();
+        this.authToken = authToken;
+        this.user = user;
+        this.selectedUser = selectedUser;
+    }
+}

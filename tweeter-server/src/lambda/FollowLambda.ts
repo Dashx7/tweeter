@@ -11,6 +11,6 @@ export let handler = async (event: XFollowRequest): Promise<XFollowResponse> => 
     }
 
     return await ErrorReporter(async () => {
-        return new XFollowResponse(true, ...(await new FollowService().unfollow(event.authToken, event.userToFollow)));
+        return new XFollowResponse(true, ...(await new FollowService().follow(event.authToken, event.userToFollow)));
     });
 }

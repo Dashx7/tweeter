@@ -4,10 +4,10 @@ import { BAD_REQUEST, ErrorReporter } from './ResponseCodes';
 
 export let handler = async (event: GetFollowXCountRequest): Promise<GetFollowXCountResponse> => {
     if (event.authToken == null) {
-        throw new Error(BAD_REQUEST + 'An error occurred');
+        throw new Error(BAD_REQUEST + 'Auth token is null');
     }
     if (event.user == null) {
-        throw new Error(BAD_REQUEST + 'An error occurred');
+        throw new Error(BAD_REQUEST + 'User is null');
     }
 
     return await ErrorReporter(async () => {
