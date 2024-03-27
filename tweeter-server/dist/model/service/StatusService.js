@@ -10,18 +10,18 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.StatusService = void 0;
-const FakeData_1 = require("tweeter-shared/src/util/FakeData");
+const tweeter_shared_1 = require("tweeter-shared");
 class StatusService {
     loadMoreFeedItems(authToken, user, pageSize, lastItem) {
         return __awaiter(this, void 0, void 0, function* () {
             // TODO: Replace with the result of calling server
-            return FakeData_1.FakeData.instance.getPageOfStatuses(lastItem, pageSize);
+            return tweeter_shared_1.FakeData.instance.getPageOfStatuses(lastItem, pageSize);
         });
     }
     loadMoreStoryItems(authToken, user, pageSize, lastItem) {
         return __awaiter(this, void 0, void 0, function* () {
             // TODO: Replace with the result of calling server
-            return FakeData_1.FakeData.instance.getPageOfStatuses(lastItem, pageSize);
+            return tweeter_shared_1.FakeData.instance.getPageOfStatuses(lastItem, pageSize);
         });
     }
     ;

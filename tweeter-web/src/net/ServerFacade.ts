@@ -1,17 +1,16 @@
-import { LoginRequest } from "tweeter-shared/src/model/net/Request";
 import { ClientCommunicator } from "./ClientCommunicator";
+import { LoginRequest, AuthenticateResponse } from "tweeter-shared";
 
 export class ServerFacade {
 
-    private SERVER_URL = "TODO: Set this value.";
+    private SERVER_URL = "TODO: Set this value."; //FIXME?
 
     private clientCommunicator = new ClientCommunicator(this.SERVER_URL);
 
-    //from Json doesn't exist?
-    // async login(request: LoginRequest): Promise<AuthenticateResponse> {
-    //     const endpoint = "/service/login";
-    //     const response: JSON = await this.clientCommunicator.doPost<LoginRequest>(request, endpoint);
+    async login(request: LoginRequest): Promise<AuthenticateResponse> {
+        const endpoint = "/service/login";
+        const response: JSON = await this.clientCommunicator.doPost<LoginRequest>(request, endpoint);
 
-    //     return AuthenticateResponse.fromJson(response);
-    // }
+        return AuthenticateResponse.fromJson(response);
+    }
 }
