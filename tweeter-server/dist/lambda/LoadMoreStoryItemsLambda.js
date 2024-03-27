@@ -17,9 +17,6 @@ let handler = (event) => __awaiter(void 0, void 0, void 0, function* () {
     if (event.authToken == null) {
         throw new Error(ResponseCodes_1.BAD_REQUEST + 'Auth token is null');
     }
-    if (event.lastItem == null) {
-        throw new Error(ResponseCodes_1.BAD_REQUEST + 'Last Item is null');
-    }
     if (event.user == null) {
         throw new Error(ResponseCodes_1.BAD_REQUEST + 'User is null');
     }

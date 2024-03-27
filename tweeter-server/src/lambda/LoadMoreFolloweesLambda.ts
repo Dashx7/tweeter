@@ -12,9 +12,6 @@ export let handler = async (event: LoadMoreFollowXRequest): Promise<LoadMoreFoll
     if (event.pageSize == null) {
         throw new Error(BAD_REQUEST + 'PageSize is null');
     }
-    if (event.lastItem == null) {
-        throw new Error(BAD_REQUEST + 'Last Item is null');
-    }
 
     return await ErrorReporter(async () => {
         return new LoadMoreFollowXResponse(true, ...(await new FollowService().loadMoreFollowees(event.authToken, event.user, event.pageSize, event.lastItem,)));

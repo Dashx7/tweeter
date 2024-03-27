@@ -23,9 +23,6 @@ let handler = (event) => __awaiter(void 0, void 0, void 0, function* () {
     if (event.pageSize == null) {
         throw new Error(ResponseCodes_1.BAD_REQUEST + 'PageSize is null');
     }
-    if (event.lastItem == null) {
-        throw new Error(ResponseCodes_1.BAD_REQUEST + 'Last Item is null');
-    }
     return yield (0, ResponseCodes_1.ErrorReporter)(() => __awaiter(void 0, void 0, void 0, function* () {
         return new tweeter_shared_1.LoadMoreFollowXResponse(true, ...(yield new FollowService_1.FollowService().loadMoreFollowers(event.authToken, event.user, event.pageSize, event.lastItem)));
     }));

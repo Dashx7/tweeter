@@ -6,9 +6,6 @@ export let handler = async (event: LoadMoreXItemsRequest): Promise<LoadMoreXItem
     if (event.authToken == null) {
         throw new Error(BAD_REQUEST + 'Auth token is null');
     }
-    if (event.lastItem == null) {
-        throw new Error(BAD_REQUEST + 'Last Item is null');
-    }
     if (event.user == null) {
         throw new Error(BAD_REQUEST + 'User is null');
     }
