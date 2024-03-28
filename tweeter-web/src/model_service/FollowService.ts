@@ -1,8 +1,8 @@
-import { AuthToken, User, FakeData, GetIsFollowerStatusRequest, GetIsFollowerStatusResponse, GetFollowXCountRequest, GetFollowXCountResponse, XFollowRequest, XFollowResponse } from "tweeter-shared";
+import { AuthToken, User, GetIsFollowerStatusRequest, GetIsFollowerStatusResponse, GetFollowXCountRequest, GetFollowXCountResponse, XFollowRequest, XFollowResponse, LoadMoreFollowXRequest, LoadMoreFollowXResponse } from "tweeter-shared";
 import { ServerFacade } from "../net/ServerFacade";
 
 export class FollowService {
-    myServerFacade: ServerFacade = new ServerFacade();
+    private myServerFacade: ServerFacade = new ServerFacade();
     public async loadMoreFollowers(
         authToken: AuthToken,
         user: User,
@@ -10,7 +10,16 @@ export class FollowService {
         lastItem: User | null
     ): Promise<[User[], boolean]> {
         // TODO: Replace with the result of calling server
-        return FakeData.instance.getPageOfUsers(lastItem, pageSize, user);
+
+        const request: LoadMoreFollowXRequest = {
+            authToken: authToken,
+            user: user,
+            pageSize: pageSize,
+            lastItem: lastItem
+        };
+        const response: LoadMoreFollowXResponse = await this.myServerFacade.LoadMoreFollowers(request);
+
+        return [response.Users, response.hasMoreFollowX];
     };
 
     public async loadMoreFollowees(
@@ -20,7 +29,16 @@ export class FollowService {
         lastItem: User | null
     ): Promise<[User[], boolean]> {
         // TODO: Replace with the result of calling server
-        return FakeData.instance.getPageOfUsers(lastItem, pageSize, user);
+        // return FakeData.instance.getPageOfUsers(lastItem, pageSize, user);
+        const request: LoadMoreFollowXRequest = {
+            authToken: authToken,
+            user: user,
+            pageSize: pageSize,
+            lastItem: lastItem
+        };
+        const response: LoadMoreFollowXResponse = await this.myServerFacade.LoadMoreFollowees(request);
+
+        return [response.Users, response.hasMoreFollowX];
     };
 
     public async getIsFollowerStatus(
@@ -94,11 +112,9 @@ export class FollowService {
             authToken: authToken,
             userToXFollow: userToUnfollow
         };
+        console.log("Unfollow called in e.ts"); //BREAKS HERE
         const response: XFollowResponse = await this.myServerFacade.Unfollow(request);
-
+        // console.log("Unfollow response: ", response);
         return [response.followers, response.followees];
-        // let followersCountTemp = await this.getFollowersCount(authToken, userToUnfollow);
-        // let followeesCountTemp = await this.getFolloweesCount(authToken, userToUnfollow);
-        // return [followersCountTemp, followeesCountTemp];
     };
 }

@@ -25,6 +25,7 @@ let handler = (event) => __awaiter(void 0, void 0, void 0, function* () {
     if (processedEvent.pageSize == null) {
         throw new Error(ResponseCodes_1.BAD_REQUEST + 'PageSize is null');
     }
+    console.log('processedEvent: ', processedEvent);
     return yield (0, ResponseCodes_1.ErrorReporter)(() => __awaiter(void 0, void 0, void 0, function* () {
         return new tweeter_shared_1.LoadMoreXItemsResponse(true, ...(yield new StatusService_1.StatusService().loadMoreStoryItems(processedEvent.authToken, processedEvent.user, processedEvent.pageSize, processedEvent.lastItem)));
     }));

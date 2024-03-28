@@ -139,8 +139,8 @@ export class LoadMoreXItemsResponse extends TweeterResponse {
 }
 
 export class LoadMoreFollowXResponse extends TweeterResponse {
-    _Users: User[];
-    _hasMoreFollowX: boolean;
+    private _Users: User[];
+    private _hasMoreFollowX: boolean;
 
     constructor(success: boolean, users: User[], hasMoreFollowX: boolean, message: string | null = null) {
         super(success, message);

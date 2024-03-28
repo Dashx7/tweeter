@@ -54,7 +54,7 @@ export class ServerFacade {
     async LoadMoreStoryItems(request: LoadMoreXItemsRequest): Promise<LoadMoreXItemsResponse> {
         const endpoint = "/service/LoadMoreStoryItems";
         const response: JSON = await this.clientCommunicator.doPost<LoadMoreXItemsRequest>(request, endpoint);
-
+        console.log("LoadMoreStoryItems response in ServerFacade: ", response);
         return LoadMoreXItemsResponse.fromJson(response);
     }
     async Login(request: LoginRequest): Promise<AuthenticateResponse> {
@@ -82,6 +82,7 @@ export class ServerFacade {
         return AuthenticateResponse.fromJson(response);
     }
     async Unfollow(request: XFollowRequest): Promise<XFollowResponse> {
+        console.log("Unfollow called in ServerFacade.ts");
         const endpoint = "/service/Login";
         const response: JSON = await this.clientCommunicator.doPost<XFollowRequest>(request, endpoint);
 

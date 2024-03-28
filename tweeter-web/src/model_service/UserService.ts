@@ -1,8 +1,10 @@
 import { AuthToken, User, FakeData } from "tweeter-shared";
 import { Buffer } from "buffer";
+import { ServerFacade } from "../net/ServerFacade";
 
 export class UserService {
-    displayedUser: User | null = null;
+    private myServerFacade: ServerFacade = new ServerFacade();
+    // displayedUser: User | null = null; //REVERT???
 
     public async login(alias: string, password: string): Promise<[User, AuthToken]> {
         let user = FakeData.instance.firstUser;

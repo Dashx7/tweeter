@@ -15,6 +15,7 @@ export let handler = async (event: unknown): Promise<LoadMoreXItemsResponse> => 
     if (processedEvent.pageSize == null) {
         throw new Error(BAD_REQUEST + 'PageSize is null');
     }
+    console.log('processedEvent: ', processedEvent);
 
     return await ErrorReporter(async () => {
         return new LoadMoreXItemsResponse(true, ...(await new StatusService().loadMoreStoryItems(processedEvent.authToken, processedEvent.user, processedEvent.pageSize, processedEvent.lastItem,)));
