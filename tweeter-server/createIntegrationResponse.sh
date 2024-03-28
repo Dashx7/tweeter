@@ -1,19 +1,23 @@
 #!/usr/bin/env bash
 
+# endpoints=(
+#     'Follow'
+#     'GetFolloweesCount'
+#     'GetFollowersCount'
+#     'GetUser'
+#     'GetIsFollowerStatus'
+#     'LoadMoreFeedItems'
+#     'LoadMoreFollowees'
+#     'LoadMoreFollowers'
+#     'LoadMoreStoryItems'
+#     'Login'
+#     'Logout'
+#     'PostStatus'
+#     'Register'
+#     'Unfollow'
+# )
 endpoints=(
-    'Follow'
-    'GetFolloweesCount'
-    'GetFollowersCount'
-    'GetUser'
-    'LoadMoreFeedItems'
-    'LoadMoreFollowees'
-    'LoadMoreFollowers'
-    'LoadMoreStoryItems'
-    'Login'
-    'Logout'
-    'PostStatus'
-    'Register'
-    'Unfollow'
+    'GetIsFollowerStatus'
 )
 rest_api_id=8vzj6lcwcc
 

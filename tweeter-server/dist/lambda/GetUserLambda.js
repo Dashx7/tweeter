@@ -14,14 +14,16 @@ const UserService_1 = require("../model/service/UserService");
 const ResponseCodes_1 = require("./ResponseCodes");
 const tweeter_shared_1 = require("tweeter-shared");
 let handler = (event) => __awaiter(void 0, void 0, void 0, function* () {
-    if (event.authToken == null) {
+    console.log('GetUser called in GetUserLambda.ts with event: ', event);
+    let processedEvent = tweeter_shared_1.GetUserRequest.fromJson(event);
+    if (processedEvent.authToken == null) {
         throw new Error(ResponseCodes_1.BAD_REQUEST + 'Auth token is null');
     }
-    if (event.alias == null) {
+    if (processedEvent.alias == null) {
         throw new Error(ResponseCodes_1.BAD_REQUEST + 'Alias is null');
     }
     return yield (0, ResponseCodes_1.ErrorReporter)(() => __awaiter(void 0, void 0, void 0, function* () {
-        return new tweeter_shared_1.GetUserResponse(true, yield new UserService_1.UserService().getUser(event.authToken, event.alias));
+        return new tweeter_shared_1.GetUserResponse(true, yield new UserService_1.UserService().getUser(processedEvent.authToken, processedEvent.alias));
     }));
 });
 exports.handler = handler;

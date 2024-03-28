@@ -1,3 +1,4 @@
+LAMBDALAYER_ARN='arn:aws:lambda:us-east-1:532311244571:layer:GoodTweeterLayer:2'
 BUCKET='joshwiseman340'
 EDIT_LAMBDALIST='
 FollowLambda

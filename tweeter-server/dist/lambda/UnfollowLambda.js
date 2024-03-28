@@ -14,14 +14,16 @@ const tweeter_shared_1 = require("tweeter-shared");
 const ResponseCodes_1 = require("./ResponseCodes");
 const FollowService_1 = require("../model/service/FollowService");
 let handler = (event) => __awaiter(void 0, void 0, void 0, function* () {
-    if (event.authToken == null) {
+    console.log('Unfollow called in UnfollowLambda.ts with event: ', event);
+    let processedEvent = tweeter_shared_1.XFollowRequest.fromJson(event);
+    if (processedEvent.authToken == null) {
         throw new Error(ResponseCodes_1.BAD_REQUEST + 'AuthToken is null');
     }
-    if (event.userToFollow == null) {
+    if (processedEvent.userToXFollow == null) {
         throw new Error(ResponseCodes_1.BAD_REQUEST + 'User To Follow is null');
     }
     return yield (0, ResponseCodes_1.ErrorReporter)(() => __awaiter(void 0, void 0, void 0, function* () {
-        return new tweeter_shared_1.XFollowResponse(true, ...(yield new FollowService_1.FollowService().unfollow(event.authToken, event.userToFollow)));
+        return new tweeter_shared_1.XFollowResponse(true, ...(yield new FollowService_1.FollowService().unfollow(processedEvent.authToken, processedEvent.userToXFollow)));
     }));
 });
 exports.handler = handler;

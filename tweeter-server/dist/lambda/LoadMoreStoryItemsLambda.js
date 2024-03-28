@@ -14,17 +14,19 @@ const StatusService_1 = require("../model/service/StatusService");
 const ResponseCodes_1 = require("./ResponseCodes");
 const tweeter_shared_1 = require("tweeter-shared");
 let handler = (event) => __awaiter(void 0, void 0, void 0, function* () {
-    if (event.authToken == null) {
+    console.log('LoadMoreStoryItems called in LoadMoreStoryItemsLambda.ts with event: ', event);
+    let processedEvent = tweeter_shared_1.LoadMoreXItemsRequest.fromJson(event);
+    if (processedEvent.authToken == null) {
         throw new Error(ResponseCodes_1.BAD_REQUEST + 'Auth token is null');
     }
-    if (event.user == null) {
+    if (processedEvent.user == null) {
         throw new Error(ResponseCodes_1.BAD_REQUEST + 'User is null');
     }
-    if (event.pageSize == null) {
+    if (processedEvent.pageSize == null) {
         throw new Error(ResponseCodes_1.BAD_REQUEST + 'PageSize is null');
     }
     return yield (0, ResponseCodes_1.ErrorReporter)(() => __awaiter(void 0, void 0, void 0, function* () {
-        return new tweeter_shared_1.LoadMoreXItemsResponse(true, ...(yield new StatusService_1.StatusService().loadMoreStoryItems(event.authToken, event.user, event.pageSize, event.lastItem)));
+        return new tweeter_shared_1.LoadMoreXItemsResponse(true, ...(yield new StatusService_1.StatusService().loadMoreStoryItems(processedEvent.authToken, processedEvent.user, processedEvent.pageSize, processedEvent.lastItem)));
     }));
 });
 exports.handler = handler;

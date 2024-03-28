@@ -14,17 +14,19 @@ const FollowService_1 = require("../model/service/FollowService");
 const ResponseCodes_1 = require("./ResponseCodes");
 const tweeter_shared_1 = require("tweeter-shared");
 let handler = (event) => __awaiter(void 0, void 0, void 0, function* () {
-    if (event.authToken == null) {
+    console.log('GetIsFollowerStatus called in GetIsFollowerStatusLambda.ts with event: ', event);
+    let processedEvent = tweeter_shared_1.GetIsFollowerStatusRequest.fromJson(event);
+    if (processedEvent.authToken == null) {
         throw new Error(ResponseCodes_1.BAD_REQUEST + 'Auth token is null');
     }
-    if (event.user == null) {
+    if (processedEvent.user == null) {
         throw new Error(ResponseCodes_1.BAD_REQUEST + 'User is null');
     }
-    if (event.selectedUser == null) {
+    if (processedEvent.selectedUser == null) {
         throw new Error(ResponseCodes_1.BAD_REQUEST + 'Selected user is null');
     }
     return yield (0, ResponseCodes_1.ErrorReporter)(() => __awaiter(void 0, void 0, void 0, function* () {
-        return new tweeter_shared_1.GetIsFollowerStatusResponse(true, yield new FollowService_1.FollowService().getIsFollowerStatus(event.authToken, event.user, event.selectedUser));
+        return new tweeter_shared_1.GetIsFollowerStatusResponse(true, yield new FollowService_1.FollowService().getIsFollowerStatus(processedEvent.authToken, processedEvent.user, processedEvent.selectedUser));
     }));
 });
 exports.handler = handler;

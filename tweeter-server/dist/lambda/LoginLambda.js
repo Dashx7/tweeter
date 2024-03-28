@@ -14,14 +14,16 @@ const tweeter_shared_1 = require("tweeter-shared");
 const UserService_1 = require("../model/service/UserService");
 const ResponseCodes_1 = require("./ResponseCodes");
 let handler = (event) => __awaiter(void 0, void 0, void 0, function* () {
-    if (event.username == null) {
+    console.log('Login called in LoginLambda.ts with event: ', event);
+    let processedEvent = tweeter_shared_1.LoginRequest.fromJson(event);
+    if (processedEvent.username == null) {
         throw new Error(ResponseCodes_1.BAD_REQUEST + 'username is null');
     }
-    if (event.password == null) {
+    if (processedEvent.password == null) {
         throw new Error(ResponseCodes_1.BAD_REQUEST + 'password is null');
     }
     return yield (0, ResponseCodes_1.ErrorReporter)(() => __awaiter(void 0, void 0, void 0, function* () {
-        return new tweeter_shared_1.AuthenticateResponse(true, ...(yield new UserService_1.UserService().login(event.username, event.password)));
+        return new tweeter_shared_1.AuthenticateResponse(true, ...(yield new UserService_1.UserService().login(processedEvent.username, processedEvent.password)));
     }));
 });
 exports.handler = handler;

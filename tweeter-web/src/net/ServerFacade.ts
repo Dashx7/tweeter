@@ -1,5 +1,5 @@
 import { ClientCommunicator } from "./ClientCommunicator";
-import { LoginRequest, AuthenticateResponse, GetFollowXCountRequest, XFollowRequest, XFollowResponse, GetFollowXCountResponse, GetUserRequest, GetUserResponse, LoadMoreXItemsRequest, LoadMoreXItemsResponse, LoadMoreFollowXRequest, LoadMoreFollowXResponse, LogoutRequest, VoidResponse, PostStatusRequest, RegisterRequest } from "tweeter-shared";
+import { LoginRequest, AuthenticateResponse, GetFollowXCountRequest, XFollowRequest, XFollowResponse, GetFollowXCountResponse, GetUserRequest, GetUserResponse, LoadMoreXItemsRequest, LoadMoreXItemsResponse, LoadMoreFollowXRequest, LoadMoreFollowXResponse, LogoutRequest, VoidResponse, PostStatusRequest, RegisterRequest, GetIsFollowerStatusRequest, GetIsFollowerStatusResponse } from "tweeter-shared";
 
 export class ServerFacade {
 
@@ -8,6 +8,7 @@ export class ServerFacade {
     private clientCommunicator = new ClientCommunicator(this.SERVER_URL);
 
     async Follow(request: XFollowRequest): Promise<XFollowResponse> {
+        console.log("Follow called in ServerFacade.ts");
         const endpoint = "/service/Follow";
         const response: JSON = await this.clientCommunicator.doPost<XFollowRequest>(request, endpoint);
 
@@ -20,6 +21,7 @@ export class ServerFacade {
         return GetFollowXCountResponse.fromJson(response);
     }
     async GetFollowersCount(request: GetFollowXCountRequest): Promise<GetFollowXCountResponse> {
+        console.log("GetFollowersCount called in ServerFacade.ts");
         const endpoint = "/service/GetFollowersCount";
         const response: JSON = await this.clientCommunicator.doPost<GetFollowXCountRequest>(request, endpoint);
 
@@ -84,5 +86,11 @@ export class ServerFacade {
         const response: JSON = await this.clientCommunicator.doPost<XFollowRequest>(request, endpoint);
 
         return XFollowResponse.fromJson(response);
+    }
+    async GetIsFollowerStatus(request: GetIsFollowerStatusRequest): Promise<GetIsFollowerStatusResponse> {
+        const endpoint = "/service/GetIsFollowerStatus";
+        const response: JSON = await this.clientCommunicator.doPost<GetIsFollowerStatusRequest>(request, endpoint);
+
+        return GetIsFollowerStatusResponse.fromJson(response);
     }
 }

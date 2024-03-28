@@ -14,14 +14,16 @@ const StatusService_1 = require("../model/service/StatusService");
 const ResponseCodes_1 = require("./ResponseCodes");
 const tweeter_shared_1 = require("tweeter-shared");
 let handler = (event) => __awaiter(void 0, void 0, void 0, function* () {
-    if (event.authToken == null) {
+    console.log('PostStatus called in PostStatusLambda.ts with event: ', event);
+    let processedEvent = tweeter_shared_1.PostStatusRequest.fromJson(event);
+    if (processedEvent.authToken == null) {
         throw new Error(ResponseCodes_1.BAD_REQUEST + 'Auth token is null');
     }
-    if (event.status == null) {
+    if (processedEvent.status == null) {
         throw new Error(ResponseCodes_1.BAD_REQUEST + 'Status is null');
     }
     return yield (0, ResponseCodes_1.ErrorReporter)(() => __awaiter(void 0, void 0, void 0, function* () {
-        return new tweeter_shared_1.VoidResponse(true, yield new StatusService_1.StatusService().postStatus(event.authToken, event.status));
+        return new tweeter_shared_1.VoidResponse(true, yield new StatusService_1.StatusService().postStatus(processedEvent.authToken, processedEvent.status));
     }));
 });
 exports.handler = handler;

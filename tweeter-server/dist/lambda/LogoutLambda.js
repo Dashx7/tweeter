@@ -14,11 +14,13 @@ const tweeter_shared_1 = require("tweeter-shared");
 const UserService_1 = require("../model/service/UserService");
 const ResponseCodes_1 = require("./ResponseCodes");
 let handler = (event) => __awaiter(void 0, void 0, void 0, function* () {
-    if (event.authToken == null) {
+    console.log('Logout called in LogoutLambda.ts with event: ', event);
+    let processedEvent = tweeter_shared_1.LogoutRequest.fromJson(event);
+    if (processedEvent.authToken == null) {
         throw new Error(ResponseCodes_1.BAD_REQUEST + 'Authtoken is null');
     }
     return yield (0, ResponseCodes_1.ErrorReporter)(() => __awaiter(void 0, void 0, void 0, function* () {
-        return new tweeter_shared_1.VoidResponse(true, yield new UserService_1.UserService().logout(event.authToken));
+        return new tweeter_shared_1.VoidResponse(true, yield new UserService_1.UserService().logout(processedEvent.authToken));
     }));
 });
 exports.handler = handler;

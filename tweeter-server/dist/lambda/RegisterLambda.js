@@ -14,23 +14,25 @@ const tweeter_shared_1 = require("tweeter-shared");
 const UserService_1 = require("../model/service/UserService");
 const ResponseCodes_1 = require("./ResponseCodes");
 let handler = (event) => __awaiter(void 0, void 0, void 0, function* () {
-    if (event.alias == null) {
+    console.log('Register called in RegisterLambda.ts with event: ', event);
+    let processedEvent = tweeter_shared_1.RegisterRequest.fromJson(event);
+    if (processedEvent.alias == null) {
         throw new Error(ResponseCodes_1.BAD_REQUEST + 'Alias is null');
     }
-    if (event.firstName == null) {
+    if (processedEvent.firstName == null) {
         throw new Error(ResponseCodes_1.BAD_REQUEST + 'First Name is null');
     }
-    if (event.lastName == null) {
+    if (processedEvent.lastName == null) {
         throw new Error(ResponseCodes_1.BAD_REQUEST + 'Last Name is null');
     }
-    if (event.password == null) {
+    if (processedEvent.password == null) {
         throw new Error(ResponseCodes_1.BAD_REQUEST + 'Password is null');
     }
-    if (event.userImageBytes == null) {
+    if (processedEvent.userImageBytes == null) {
         throw new Error(ResponseCodes_1.BAD_REQUEST + 'Image is null');
     }
     return yield (0, ResponseCodes_1.ErrorReporter)(() => __awaiter(void 0, void 0, void 0, function* () {
-        return new tweeter_shared_1.AuthenticateResponse(true, ...(yield new UserService_1.UserService().register(event.alias, event.firstName, event.lastName, event.password, event.userImageBytes)));
+        return new tweeter_shared_1.AuthenticateResponse(true, ...(yield new UserService_1.UserService().register(processedEvent.alias, processedEvent.firstName, processedEvent.lastName, processedEvent.password, processedEvent.userImageBytes)));
     }));
 });
 exports.handler = handler;

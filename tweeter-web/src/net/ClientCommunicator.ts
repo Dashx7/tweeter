@@ -23,7 +23,8 @@ export class ClientCommunicator {
                 return response;
             } else {
                 const error = await resp.json();
-                throw new Error(error.errorMessage);
+                // throw new Error(error.errorMessage);
+                throw new Error(`Server responded with status: ${resp.status}`);
             }
 
         } catch (err) {
