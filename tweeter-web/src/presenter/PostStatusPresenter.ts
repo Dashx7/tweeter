@@ -1,5 +1,5 @@
 import { AuthToken, Status, User } from "tweeter-shared";
-import { StatusService } from "../model_service/StatusService";
+import { StatusService } from "../model_service/StatusServiceFacade";
 import { MessageView, Presenter } from "./Presenter";
 
 export interface PostStatusView extends MessageView {

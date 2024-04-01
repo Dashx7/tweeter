@@ -1,5 +1,5 @@
 import { AuthToken } from "tweeter-shared";
-import { UserService } from "../model_service/UserService";
+import { UserService } from "../model_service/UserServiceFacade";
 import { MessageView, Presenter } from "./Presenter";
 import { ServerFacade } from "../net/ServerFacade";
 ``

@@ -2,6 +2,7 @@ import { AuthToken, User, FakeData } from 'tweeter-shared';
 
 
 export class FollowService {
+    //private DAO
     public async loadMoreFollowers(
         authToken: AuthToken,
         user: User,

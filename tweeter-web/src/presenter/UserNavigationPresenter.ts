@@ -1,5 +1,5 @@
 import { AuthToken, User } from 'tweeter-shared';
-import { UserService } from '../model_service/UserService';
+import { UserService } from '../model_service/UserServiceFacade';
 import { BasicView, Presenter } from './Presenter';
 
 export interface UserNavigationView extends BasicView {

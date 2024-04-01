@@ -1,5 +1,5 @@
 import { AuthToken, User } from "tweeter-shared";
-import { FollowService } from "../model_service/FollowService";
+import { FollowService } from "../model_service/FollowServiceFacade";
 import { MessageView, Presenter } from "./Presenter";
 
 export interface UserInfoView extends MessageView {
