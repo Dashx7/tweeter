@@ -1,5 +1,5 @@
 //Has all the DAOS
-import { ConcreteDAOFactory } from "../../lambda/DAOs/DAOFactories";
+import { ConcreteDAOFactory } from "../../DAOs/DAOFactories";
 
 //public DAO
 

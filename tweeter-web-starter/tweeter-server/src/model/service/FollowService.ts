@@ -1,6 +1,9 @@
-import {AuthToken, User, FakeData} from "tweeter-shared";
+import { AuthToken, User, FakeData } from "tweeter-shared";
+import { BaseService } from "./BaseService";
 
 export class FollowService {
+    private followDAO = new BaseService().getFollowDAO();
+
     public async loadMoreFollowers(
         authToken: AuthToken,
         user: User,
@@ -43,7 +46,8 @@ export class FollowService {
         user: User
     ): Promise<number> {
         // TODO: Replace with the result of calling server
-        return FakeData.instance.getFollowersCount(user);
+        // return FakeData.instance.getFollowersCount(user);
+        return this.followDAO.getFollowersCount(authToken, user);
     };
 
     public async follow(

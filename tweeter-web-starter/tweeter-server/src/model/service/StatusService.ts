@@ -1,4 +1,5 @@
-import {AuthToken, User, Status, FakeData} from "tweeter-shared";
+import { AuthToken, User, Status, FakeData } from "tweeter-shared";
+import { BaseService } from "./BaseService";
 
 export class StatusService {
     public async loadMoreFeedItems(
