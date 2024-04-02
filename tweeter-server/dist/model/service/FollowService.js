@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.FollowService = void 0;
 const tweeter_shared_1 = require("tweeter-shared");
 class FollowService {
+    //private DAO
     loadMoreFollowers(authToken, user, pageSize, lastItem) {
         return __awaiter(this, void 0, void 0, function* () {
             // TODO: Replace with the result of calling server

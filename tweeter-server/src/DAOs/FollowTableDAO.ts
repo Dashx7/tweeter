@@ -33,11 +33,7 @@ export class FollowTableDAO {
         }
 
         // Convert the response.Item into a User object
-        const user: User = {
-            alias: response.Item.alias.S,
-            // Add other User properties here
-        };
-
+        let user: User = new User(response.Item.firstName.S, response.Item.lastName.S, response.Item.alias.S, response.Item.imageUrl.S);
         return user;
     }
 }
