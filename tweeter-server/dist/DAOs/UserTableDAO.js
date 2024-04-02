@@ -12,36 +12,27 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserTableDAO = void 0;
 const lib_dynamodb_1 = require("@aws-sdk/lib-dynamodb");
 const client_dynamodb_1 = require("@aws-sdk/client-dynamodb");
+const tweeter_shared_1 = require("tweeter-shared");
 class UserTableDAO {
     constructor() {
-        this.client = new client_dynamodb_1.DynamoDBClient({ region: "us-west-2" });
+        this.client = new client_dynamodb_1.DynamoDBClient({ region: "us-east-1" }); // replace with your region
+        this.tableName = "Users"; // replace with your table name
     }
-    follow(toFollowAlias, followerAlias) {
+    getUser(alias) {
         return __awaiter(this, void 0, void 0, function* () {
             const params = {
-                TableName: 'Users',
-                Key: { id: { S: toFollowAlias } },
-                UpdateExpression: 'ADD following :followerAlias',
-                ExpressionAttributeValues: {
-                    ':followerAlias': { SS: [followerAlias] },
-                },
-                ReturnValues: client_dynamodb_1.ReturnValue.UPDATED_NEW,
+                TableName: this.tableName,
+                Key: {
+                    alias: { S: alias }
+                }
             };
-            yield this.client.send(new lib_dynamodb_1.UpdateCommand(params));
-        });
-    }
-    unfollow(toUnfollowAlias, followerAlias) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const params = {
-                TableName: 'Users',
-                Key: { id: { S: toUnfollowAlias } },
-                UpdateExpression: 'DELETE following :followerAlias',
-                ExpressionAttributeValues: {
-                    ':followerAlias': { SS: [followerAlias] },
-                },
-                ReturnValues: client_dynamodb_1.ReturnValue.UPDATED_NEW,
-            };
-            yield this.client.send(new lib_dynamodb_1.UpdateCommand(params));
+            const response = yield this.client.send(new lib_dynamodb_1.GetCommand(params));
+            if (!response.Item) {
+                throw new Error(`User with alias ${alias} not found`);
+            }
+            // Convert the response.Item into a User object
+            let user = new tweeter_shared_1.User(response.Item.firstName.S, response.Item.lastName.S, response.Item.alias.S, response.Item.imageUrl.S);
+            return user;
         });
     }
 }

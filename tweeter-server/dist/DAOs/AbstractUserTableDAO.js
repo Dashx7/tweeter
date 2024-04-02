@@ -1,6 +1,2 @@
 "use strict";
-class AbstractUserTableDAO {
-    constructor(tableName) {
-        this.tableName = tableName;
-    }
-}
+Object.defineProperty(exports, "__esModule", { value: true });

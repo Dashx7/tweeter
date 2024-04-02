@@ -11,8 +11,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FollowService = void 0;
 const tweeter_shared_1 = require("tweeter-shared");
+const BaseService_1 = require("./BaseService");
 class FollowService {
-    //private DAO
+    constructor() {
+        //private DAO
+        this.followDAO = new BaseService_1.BaseService().getFollowDAO();
+    }
     loadMoreFollowers(authToken, user, pageSize, lastItem) {
         return __awaiter(this, void 0, void 0, function* () {
             // TODO: Replace with the result of calling server
@@ -45,6 +49,7 @@ class FollowService {
         return __awaiter(this, void 0, void 0, function* () {
             // TODO: Replace with the result of calling server
             return tweeter_shared_1.FakeData.instance.getFollowersCount(user);
+            // return this.followDAO.getFollowersCount(authToken, user);
         });
     }
     ;

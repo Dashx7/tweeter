@@ -4,7 +4,8 @@ exports.ConcreteDAOFactory = void 0;
 const UserTableDAO_1 = require("./UserTableDAO");
 const FollowTableDAO_1 = require("./FollowTableDAO");
 const AuthTokenTableDAO_1 = require("./AuthTokenTableDAO");
-const StatusTableDAO_1 = require("./StatusTableDAO");
+const FeedTableDAO_1 = require("./FeedTableDAO");
+const StoryTableDAO_1 = require("./StoryTableDAO");
 class ConcreteDAOFactory {
     getUserDAO() {
         return new UserTableDAO_1.UserTableDAO();
@@ -16,7 +17,10 @@ class ConcreteDAOFactory {
         return new AuthTokenTableDAO_1.AuthTokenTableDAO();
     }
     getStatusDAO() {
-        return new StatusTableDAO_1.StatusTableDAO();
+        return new FeedTableDAO_1.StatusTableDAO();
+    }
+    getStoryDAO() {
+        return new StoryTableDAO_1.StoryTableDAO();
     }
 }
 exports.ConcreteDAOFactory = ConcreteDAOFactory;
