@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 
 # Transpile
-tsc
+cmd.exe /C tsc
 
 # Clean up previous
 rm dist.zip
 rm lambda_layer.zip
 
 (
-cd dist
-zip -r ../dist.zip *
+#cd dist
+zip -r dist.zip dist
 )
 
 mkdir -p nodejs

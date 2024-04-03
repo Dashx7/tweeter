@@ -46,8 +46,8 @@ export class FollowService {
         user: User
     ): Promise<number> {
         // TODO: Replace with the result of calling server
-        // return FakeData.instance.getFollowersCount(user);
-        return this.followDAO.getFollowersCount(authToken, user);
+        return FakeData.instance.getFollowersCount(user);
+        // return this.followDAO.getFollowersCount(authToken, user);
     };
 
     public async follow(

@@ -1,7 +1,17 @@
 import { AuthToken, FakeData, User } from "tweeter-shared";
 import { BaseService } from "./BaseService";
+import bcrpt from "bcryptjs";
+import {
+    S3Client,
+    PutObjectCommand,
+    ObjectCannedACL,
+} from "@aws-sdk/client-s3";
+import { PutCommand } from "@aws-sdk/lib-dynamodb";
 
 export class UserService {
+    private userDAO = new BaseService().getUserDAO();
+    private authTokenDAO = new BaseService().getAuthTokenDAO();
+
     public async login(
         alias: string,
         password: string
@@ -13,8 +23,10 @@ export class UserService {
             throw new Error("Invalid alias or password");
         }
 
-        return [user, FakeData.instance.authToken];
+        return await this.authTokenDAO.login(alias, password);
     };
+
+
 
     public async register(
         firstName: string,
@@ -23,18 +35,8 @@ export class UserService {
         password: string,
         userImageBytes: Uint8Array
     ): Promise<[User, AuthToken]> {
-        // Not neded now, but will be needed when you make the request to the server in milestone 3
-        let imageStringBase64: string =
-            Buffer.from(userImageBytes).toString("base64");
 
-        // TODO: Replace with the result of calling the server
-        let user = FakeData.instance.firstUser;
-
-        if (user === null) {
-            throw new Error("Invalid registration");
-        }
-
-        return [user, FakeData.instance.authToken];
+        return await this.authTokenDAO.register(firstName, lastName, alias, password, userImageBytes);
     };
 
     public async logout(authToken: AuthToken): Promise<void> {
@@ -46,7 +48,7 @@ export class UserService {
         authToken: AuthToken,
         alias: string
     ): Promise<User | null> {
-        // TODO: Replace with the result of calling server
-        return FakeData.instance.findUserByAlias(alias);
+
+        return await this.userDAO.getUser(alias);
     };
 }

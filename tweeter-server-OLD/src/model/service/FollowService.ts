@@ -1,11 +1,8 @@
 import { AuthToken, User, FakeData } from 'tweeter-shared';
 
-import { BaseService } from "./BaseService"
 
 export class FollowService {
     //private DAO
-    private followDAO = new BaseService().getFollowDAO();
-
     public async loadMoreFollowers(
         authToken: AuthToken,
         user: User,

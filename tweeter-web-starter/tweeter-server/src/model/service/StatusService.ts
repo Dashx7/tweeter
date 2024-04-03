@@ -2,6 +2,9 @@ import { AuthToken, User, Status, FakeData } from "tweeter-shared";
 import { BaseService } from "./BaseService";
 
 export class StatusService {
+    private storyService = new BaseService().getStoryDAO();
+    private feedService = new BaseService().getFeedDAO();
+
     public async loadMoreFeedItems(
         authToken: AuthToken,
         user: User,

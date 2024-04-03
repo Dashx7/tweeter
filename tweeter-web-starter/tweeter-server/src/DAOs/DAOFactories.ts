@@ -1,7 +1,7 @@
 import { UserTableDAO } from "./UserTableDAO";
 import { FollowTableDAO } from "./FollowTableDAO";
 import { AuthTokenTableDAO } from "./AuthTokenTableDAO";
-import { StatusTableDAO } from "./FeedTableDAO";
+import { FeedTableDAO } from "./FeedTableDAO";
 import { StoryTableDAO } from "./StoryTableDAO";
 
 //Start of DAOFactories
@@ -9,7 +9,7 @@ interface DAOFactoryInterface {
     getUserDAO(): UserTableDAO;
     getFollowDAO(): FollowTableDAO;
     getAuthTokenDAO(): AuthTokenTableDAO;
-    getStatusDAO(): StatusTableDAO;
+    getFeedDAO(): FeedTableDAO;
     getStoryDAO(): StoryTableDAO;
 }
 
@@ -23,8 +23,8 @@ export class ConcreteDAOFactory implements DAOFactoryInterface {
     getAuthTokenDAO(): AuthTokenTableDAO {
         return new AuthTokenTableDAO();
     }
-    getStatusDAO(): StatusTableDAO {
-        return new StatusTableDAO();
+    getFeedDAO(): FeedTableDAO {
+        return new FeedTableDAO();
     }
     getStoryDAO(): StoryTableDAO {
         return new StoryTableDAO();

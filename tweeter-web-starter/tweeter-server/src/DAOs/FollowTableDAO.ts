@@ -4,6 +4,10 @@ import { GetCommand, QueryCommand, QueryCommandInput } from "@aws-sdk/lib-dynamo
 import { AuthToken, User } from "tweeter-shared";
 import { FollowTableDAOInterface } from "./AbstractFollowTableDAO";
 
+//Follow table will have two indexes
+// One is the key follow_alias, and associates follow_username, followee_alias, and followee_username (This one is to find all the people they follow)
+// The other is key followee_alias, and assocites followee_username, follow_alias and follow_username (This one is to find all the people that follow them)
+
 export class FollowTableDAO implements FollowTableDAOInterface {
     private client: DynamoDBClient;
     private readonly tableName: string;
@@ -58,13 +62,13 @@ export class FollowTableDAO implements FollowTableDAOInterface {
         throw new Error("Method not implemented.");
     }
 
-    async getFollowersCount( //My best example yet?
+    async getFollowersCount(
         authToken: AuthToken,
         user: User
     ): Promise<number> {
         const params = {
-            TableName: 'follows',
-            IndexName: 'followee_index', // replace with your GSI name THIS MIGHT NEED A FIX
+            TableName: this.tableName,
+            IndexName: 'followee_index',
             KeyConditionExpression: 'followee_handle = :followee_handle',
             ExpressionAttributeValues: {
                 ':followee_handle': { S: user.alias },
@@ -119,40 +123,3 @@ export class FollowTableDAO implements FollowTableDAOInterface {
     }
 
 }
-
-
-// export class FollowTableDAO {
-//     private client: DynamoDBClient;
-
-//     constructor() {
-//         this.client = new DynamoDBClient({ region: "us-west-2" });
-//     }
-
-//     async follow(toFollowAlias: string, followerAlias: string): Promise<void> {
-//         const params = {
-//             TableName: 'Users',
-//             Key: { id: { S: toFollowAlias } },
-//             UpdateExpression: 'ADD following :followerAlias',
-//             ExpressionAttributeValues: {
-//                 ':followerAlias': { SS: [followerAlias] },
-//             },
-//             ReturnValues: ReturnValue.UPDATED_NEW,
-//         };
-
-//         await this.client.send(new UpdateCommand(params));
-//     }
-
-//     async unfollow(toUnfollowAlias: string, followerAlias: string): Promise<void> {
-//         const params = {
-//             TableName: 'Users',
-//             Key: { id: { S: toUnfollowAlias } },
-//             UpdateExpression: 'DELETE following :followerAlias',
-//             ExpressionAttributeValues: {
-//                 ':followerAlias': { SS: [followerAlias] },
-//             },
-//             ReturnValues: ReturnValue.UPDATED_NEW,
-//         };
-
-//         await this.client.send(new UpdateCommand(params));
-//     }
-// }

@@ -15,7 +15,10 @@ export class BaseService {
     public getAuthTokenDAO() {
         return this.DAOFactory.getAuthTokenDAO();
     }
-    public getStatusDAO() {
-        return this.DAOFactory.getStatusDAO();
+    public getFeedDAO() {
+        return this.DAOFactory.getFeedDAO();
+    }
+    public getStoryDAO() {
+        return this.DAOFactory.getStoryDAO();
     }
 }

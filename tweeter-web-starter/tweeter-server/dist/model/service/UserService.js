@@ -11,7 +11,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserService = void 0;
 const tweeter_shared_1 = require("tweeter-shared");
+const BaseService_1 = require("./BaseService");
 class UserService {
+    constructor() {
+        this.userDAO = new BaseService_1.BaseService().getUserDAO();
+        this.authTokenDAO = new BaseService_1.BaseService().getAuthTokenDAO();
+    }
     login(alias, password) {
         return __awaiter(this, void 0, void 0, function* () {
             // TODO: Replace with the result of calling the server
@@ -19,20 +24,13 @@ class UserService {
             if (user === null) {
                 throw new Error("Invalid alias or password");
             }
-            return [user, tweeter_shared_1.FakeData.instance.authToken];
+            return yield this.authTokenDAO.login(alias, password);
         });
     }
     ;
     register(firstName, lastName, alias, password, userImageBytes) {
         return __awaiter(this, void 0, void 0, function* () {
-            // Not neded now, but will be needed when you make the request to the server in milestone 3
-            let imageStringBase64 = Buffer.from(userImageBytes).toString("base64");
-            // TODO: Replace with the result of calling the server
-            let user = tweeter_shared_1.FakeData.instance.firstUser;
-            if (user === null) {
-                throw new Error("Invalid registration");
-            }
-            return [user, tweeter_shared_1.FakeData.instance.authToken];
+            return yield this.authTokenDAO.register(firstName, lastName, alias, password, userImageBytes);
         });
     }
     ;
@@ -45,8 +43,7 @@ class UserService {
     ;
     getUser(authToken, alias) {
         return __awaiter(this, void 0, void 0, function* () {
-            // TODO: Replace with the result of calling server
-            return tweeter_shared_1.FakeData.instance.findUserByAlias(alias);
+            return yield this.userDAO.getUser(alias);
         });
     }
     ;
