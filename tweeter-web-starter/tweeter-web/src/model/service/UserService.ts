@@ -1,6 +1,6 @@
-import {AuthToken, GetUserRequest, LoginRequest, LogoutRequest, RegisterRequest, User} from "tweeter-shared";
-import {ServerFacade} from "../../net/ServerFacade";
-import {Buffer} from "buffer";
+import { AuthToken, GetUserRequest, LoginRequest, LogoutRequest, RegisterRequest, User } from "tweeter-shared";
+import { ServerFacade } from "../../net/ServerFacade";
+import { Buffer } from "buffer";
 
 export class UserService {
     public async login(
@@ -23,6 +23,7 @@ export class UserService {
         password: string,
         userImageBytes: Uint8Array
     ): Promise<[User, AuthToken]> {
+        console.log("Registering user with image bytes: " + userImageBytes.byteLength + userImageBytes);
         const response = await new ServerFacade().register(new RegisterRequest(firstName, lastName, alias, password, Buffer.from(userImageBytes).toString('base64')));
         return [response.user, response.token];
     };

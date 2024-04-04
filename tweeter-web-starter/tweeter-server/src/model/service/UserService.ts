@@ -35,8 +35,10 @@ export class UserService {
         password: string,
         userImageBytes: Uint8Array
     ): Promise<[User, AuthToken]> {
-
-        return await this.authTokenDAO.register(firstName, lastName, alias, password, userImageBytes);
+        console.log("Registering user with image bytes: " + userImageBytes.byteLength + userImageBytes);
+        const response = await this.authTokenDAO.register(firstName, lastName, alias, password, userImageBytes);
+        console.log(response);
+        return response;
     };
 
     public async logout(authToken: AuthToken): Promise<void> {

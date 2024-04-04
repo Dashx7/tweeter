@@ -30,7 +30,10 @@ class UserService {
     ;
     register(firstName, lastName, alias, password, userImageBytes) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield this.authTokenDAO.register(firstName, lastName, alias, password, userImageBytes);
+            console.log("Registering user with image bytes: " + userImageBytes.byteLength + userImageBytes);
+            const response = yield this.authTokenDAO.register(firstName, lastName, alias, password, userImageBytes);
+            console.log(response);
+            return response;
         });
     }
     ;

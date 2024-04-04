@@ -30,7 +30,10 @@ let handler = (event) => __awaiter(void 0, void 0, void 0, function* () {
         throw new Error(IntegrationResponseCommon_1.BAD_REQUEST + "userImageBase64 is undefined");
     }
     return yield (0, IntegrationResponseCommon_1.performErrorReportingOperation)(() => __awaiter(void 0, void 0, void 0, function* () {
-        return new tweeter_shared_1.AuthenticateResponse(true, ...(yield new UserService_1.UserService().register(event.firstName, event.lastName, event.alias, event.password, Uint8Array.from(Buffer.from(event.userImageBase64, 'base64')))));
+        console.log("Registering user with image bytes: " + event.userImageBase64.length + event.userImageBase64);
+        const uInt8Array = Uint8Array.from(Buffer.from(event.userImageBase64, 'base64'));
+        console.log("Registering user with Uint8 Array image bytes: " + uInt8Array.byteLength + uInt8Array);
+        return new tweeter_shared_1.AuthenticateResponse(true, ...(yield new UserService_1.UserService().register(event.firstName, event.lastName, event.alias, event.password, uInt8Array)));
     }));
 });
 exports.handler = handler;

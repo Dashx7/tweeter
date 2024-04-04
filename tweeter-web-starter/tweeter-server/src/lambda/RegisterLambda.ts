@@ -1,6 +1,6 @@
-import {AuthenticateResponse, LoginRequest, RegisterRequest} from "tweeter-shared";
-import {UserService} from "../model/service/UserService";
-import {BAD_REQUEST, performErrorReportingOperation} from "./IntegrationResponseCommon";
+import { AuthenticateResponse, LoginRequest, RegisterRequest } from "tweeter-shared";
+import { UserService } from "../model/service/UserService";
+import { BAD_REQUEST, performErrorReportingOperation } from "./IntegrationResponseCommon";
 
 export let handler = async (event: RegisterRequest): Promise<AuthenticateResponse> => {
     if (event.alias == null) {
@@ -20,12 +20,15 @@ export let handler = async (event: RegisterRequest): Promise<AuthenticateRespons
     }
 
     return await performErrorReportingOperation(async () => {
+        console.log("Registering user with image bytes: " + event.userImageBase64.length + event.userImageBase64);
+        const uInt8Array = Uint8Array.from(Buffer.from(event.userImageBase64, 'base64'));
+        console.log("Registering user with Uint8 Array image bytes: " + uInt8Array.byteLength + uInt8Array);
         return new AuthenticateResponse(true, ...(await new UserService().register(
             event.firstName,
             event.lastName,
             event.alias,
             event.password,
-            Uint8Array.from(Buffer.from(event.userImageBase64, 'base64'))
+            uInt8Array
         )));
     });
 }
