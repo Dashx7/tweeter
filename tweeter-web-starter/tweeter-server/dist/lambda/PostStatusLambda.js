@@ -14,6 +14,9 @@ const tweeter_shared_1 = require("tweeter-shared");
 const StatusService_1 = require("../model/service/StatusService");
 const IntegrationResponseCommon_1 = require("./IntegrationResponseCommon");
 let handler = (event) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log("PostStatusLambda: handler: event: " + JSON.stringify(event));
+    event = tweeter_shared_1.PostStatusRequest.fromJson(event);
+    console.log("PostStatusLambda: handler: event processed: " + JSON.stringify(event));
     if (event.authToken == null) {
         throw new Error(IntegrationResponseCommon_1.BAD_REQUEST + "authToken is undefined");
     }

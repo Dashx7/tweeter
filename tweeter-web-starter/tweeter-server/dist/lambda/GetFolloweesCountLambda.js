@@ -14,6 +14,9 @@ const tweeter_shared_1 = require("tweeter-shared");
 const FollowService_1 = require("../model/service/FollowService");
 const IntegrationResponseCommon_1 = require("./IntegrationResponseCommon");
 let handler = (event) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log("GetFolloweesCountLambda: handler: event: " + JSON.stringify(event));
+    event = tweeter_shared_1.FollowerOperationsRequest.fromJson(event);
+    console.log("GetFolloweesCountLambda: handler: event processed: " + JSON.stringify(event));
     if (event.authToken == null) {
         throw new Error(IntegrationResponseCommon_1.BAD_REQUEST + "authToken is undefined");
     }

@@ -38,16 +38,15 @@ export class FollowService {
         user: User
     ): Promise<number> {
         // TODO: Replace with the result of calling server
-        return FakeData.instance.getFolloweesCount(user);
+        // return FakeData.instance.getFolloweesCount(user);
+        return this.followDAO.getFolloweesCount(authToken, user);
     };
 
     public async getFollowersCount(
         authToken: AuthToken,
         user: User
     ): Promise<number> {
-        // TODO: Replace with the result of calling server
-        return FakeData.instance.getFollowersCount(user);
-        // return this.followDAO.getFollowersCount(authToken, user);
+        return this.followDAO.getFollowersCount(authToken, user);
     };
 
     public async follow(

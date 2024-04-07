@@ -1,8 +1,10 @@
-import { DynamoDBClient, Select } from "@aws-sdk/client-dynamodb";
-import { GetCommand, QueryCommand, QueryCommandInput } from "@aws-sdk/lib-dynamodb";
-
+import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import {
+    GetCommand,
+} from "@aws-sdk/lib-dynamodb";
 import { AuthToken, User } from "tweeter-shared";
 import { FollowTableDAOInterface } from "./AbstractFollowTableDAO";
+import { GetItemCommand } from "@aws-sdk/client-dynamodb";
 
 //Follow table will have two indexes
 // One is the key follow_alias, and associates follow_username, followee_alias, and followee_username (This one is to find all the people they follow)
@@ -10,15 +12,17 @@ import { FollowTableDAOInterface } from "./AbstractFollowTableDAO";
 
 export class FollowTableDAO implements FollowTableDAOInterface {
     private client: DynamoDBClient;
-    private readonly tableName: string;
+    private readonly followTableName: string;
+    private readonly userTableName: string;
     private readonly followerName: string;
     private readonly followerHandle: string;
     private readonly followeeName: string;
     private readonly followeeHandle: string;
 
     constructor() {
-        this.client = new DynamoDBClient({ region: "us-east-1" }); // replace with your region
-        this.tableName = "follows"; // replace with your table name
+        this.client = new DynamoDBClient({ region: "us-east-1" });
+        this.followTableName = "follows";
+        this.userTableName = "users";
         this.followeeName = "followee_name";
         this.followeeHandle = "followee_handle";
         this.followerName = "follower_name";
@@ -58,30 +62,44 @@ export class FollowTableDAO implements FollowTableDAOInterface {
         authToken: AuthToken,
         user: User
     ): Promise<number> {
-        // TODO: Implement this method
-        throw new Error("Method not implemented.");
+        console.log("User: " + JSON.stringify(user));
+        const aliasToUse: string = user.alias;
+        console.log("Alias to use: " + aliasToUse);
+        const params = {
+            TableName: this.userTableName,
+            Key: {
+                'alias': aliasToUse,
+            },
+        };
+        console.log("Attempting to get followee count of " + aliasToUse);
+        const output = await this.client.send(new GetCommand(params));
+        if (!output.Item || !output.Item.followee_count || !output.Item.followee_count.N) {
+            return 0;
+        }
+        console.log("Output count :" + output.Item.followee_count.N);
+        return Number(output.Item.followee_count.N);
     }
 
     async getFollowersCount(
         authToken: AuthToken,
         user: User
     ): Promise<number> {
+        console.log("User: " + JSON.stringify(user));
+        const aliasToUse: string = user.alias;
+        console.log("Alias to use: " + aliasToUse);
         const params = {
-            TableName: this.tableName,
-            IndexName: 'followee_index',
-            KeyConditionExpression: 'followee_handle = :followee_handle',
-            ExpressionAttributeValues: {
-                ':followee_handle': { S: user.alias },
+            TableName: this.userTableName,
+            Key: {
+                'alias': aliasToUse,
             },
-            Select: Select.COUNT,
         };
-
-        const output = await this.client.send(new QueryCommand(params));
-        if (output.Count === undefined) {
+        console.log("Attempting to get follower count of " + aliasToUse);
+        const output = await this.client.send(new GetCommand(params));
+        if (!output.Item || !output.Item.follower_count || !output.Item.follower_count.N) {
             return 0;
         }
-        console.log("Output count :" + output.Count);
-        return output.Count;
+        console.log("Output count :" + output.Item.follower_count.N);
+        return Number(output.Item.follower_count.N);
     }
 
     async follow(

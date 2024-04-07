@@ -1,7 +1,7 @@
 import { AuthToken, User } from "tweeter-shared";
 import { AuthTokenTableInterface } from "./AbstractAuthTokenDAO";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { GetCommand, PutCommand } from "@aws-sdk/lib-dynamodb";
+import { DeleteCommand, GetCommand, PutCommand } from "@aws-sdk/lib-dynamodb";
 import bcrypt from "bcryptjs";
 import {
     PutObjectCommand,
@@ -87,28 +87,43 @@ export class AuthTokenTableDAO implements AuthTokenTableInterface {
         return [user, authToken];
     }
 
+    // Todo: Test
     async logout(authToken: AuthToken): Promise<void> {
-        // TODO: Implement this method
-        throw new Error("Method not implemented.");
-        //Remove authtoken query from authtoken's alias
+        const params = {
+            TableName: this.AuthTokenTableName,
+            Key: {
+                token: authToken.token
+            }
+        };
+
+        await this.client.send(new DeleteCommand(params)); // Remove authtoken from authtoken table
+
+        return;
     }
 
     async putImage(
         fileName: string,
         imageStringBase64Encoded: string
     ): Promise<string> {
+        console.log("Putting image into S3");
         let decodedImageBuffer: Buffer = Buffer.from(
             imageStringBase64Encoded,
             "base64"
         );
+        // const s3Params = {
+        //     Bucket: this.BUCKET,
+        //     Key: "image/" + fileName,
+        //     Body: decodedImageBuffer,
+        //     ContentType: "image/png",
+        //     ACL: ObjectCannedACL.public_read,
+        // };
         const s3Params = {
-            Bucket: this.BUCKET,
-            Key: "image/" + fileName,
-            Body: decodedImageBuffer,
-            ContentType: "image/png",
-            ACL: ObjectCannedACL.public_read,
+            "Bucket": this.BUCKET,
+            "Key": "image/" + fileName,
+            "Body": decodedImageBuffer,
         };
-        const c = new PutObjectCommand(s3Params);
+        console.log("Attemping to put object");
+        const c = await new PutObjectCommand(s3Params);
         try {
             await this.client.send(c);
             return (
@@ -118,8 +133,8 @@ export class AuthTokenTableDAO implements AuthTokenTableInterface {
             throw Error("S3 put image failed with: " + error);
         }
     }
-
-    async sexyPutImage(fileName: string, userImageBytes: Uint8Array): Promise<string> {
+    //Doesn't work either
+    async newPutImage(fileName: string, userImageBytes: Uint8Array): Promise<string> {
         const s3 = new AWS.S3();
         try {
             let imageStringBase64: string = Buffer.from(userImageBytes).toString('base64');
@@ -142,7 +157,7 @@ export class AuthTokenTableDAO implements AuthTokenTableInterface {
     }
 
 
-
+    // Done - Doesn't use correct s3 bucket
     async register(
         firstName: string,
         lastName: string,
@@ -159,13 +174,19 @@ export class AuthTokenTableDAO implements AuthTokenTableInterface {
         if (userImageBytes === null) {
             throw new Error("User image is null");
         }
-        console.log("Registering user with image bytes: " + userImageBytes.byteLength + userImageBytes);
 
-        let imageStringBase64: string = Buffer.from(userImageBytes).toString("base64");
-        console.log("Image String Base64: " + imageStringBase64);
-        let image_URL = await this.putImage(alias, imageStringBase64);
-        // let image_URL = "https://joshwiseman340.s3.us-east-1.amazonaws.com/image/" + alias; //TODO: Change this to the correct URL
-        console.log("Image URL: " + image_URL);
+        const tryForReal: boolean = false; //Change to true to actually put image into S3, false because it doesn't work
+        if (tryForReal) {
+            console.log("Registering user with image bytes: " + userImageBytes.byteLength + userImageBytes);
+
+            let imageStringBase64: string = Buffer.from(userImageBytes).toString("base64"); //Convert to base64
+            console.log("Image String Base64: " + imageStringBase64);
+            // let image_URL = await this.putImage(alias, imageStringBase64); //Put image into S3
+            let image_URL = await this.putImage(alias, "Image Test"); //Put image into S3
+
+            console.log("Image URL: " + image_URL);
+        }
+        let image_URL = "https://static.vecteezy.com/system/resources/previews/005/544/718/non_2x/profile-icon-design-free-vector.jpg"; //TODO: Change this to the correct URL
 
 
         //Put user variables, password_hashed, follower_count, followee_count into users table
@@ -183,9 +204,10 @@ export class AuthTokenTableDAO implements AuthTokenTableInterface {
         };
         await this.client.send(new PutCommand(params));
 
-        let user = new User(firstName, lastName, alias, image_URL);
-        const authToken = AuthToken.Generate();
-        // Put authtoken into authtoken table
+        let user = new User(firstName, lastName, alias, image_URL); // Making the user object to return
+
+
+        const authToken = AuthToken.Generate(); // Put authtoken into authtoken table
         const putParams = {
             TableName: this.AuthTokenTableName,
             Item: {

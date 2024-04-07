@@ -1,8 +1,12 @@
-import {FollowerOperationsRequest, GetFollowCountResponse} from "tweeter-shared";
-import {FollowService} from "../model/service/FollowService";
-import {BAD_REQUEST, performErrorReportingOperation} from "./IntegrationResponseCommon";
+import { FollowerOperationsRequest, GetFollowCountResponse } from "tweeter-shared";
+import { FollowService } from "../model/service/FollowService";
+import { BAD_REQUEST, performErrorReportingOperation } from "./IntegrationResponseCommon";
 
 export let handler = async (event: FollowerOperationsRequest): Promise<GetFollowCountResponse> => {
+    console.log("GetFolloweesCountLambda: handler: event: " + JSON.stringify(event));
+    event = FollowerOperationsRequest.fromJson(event);
+    console.log("Change 1");
+    console.log("GetFolloweesCountLambda: handler: event processed: " + JSON.stringify(event));
     if (event.authToken == null) {
         throw new Error(BAD_REQUEST + "authToken is undefined");
     }

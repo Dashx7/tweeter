@@ -85,24 +85,37 @@ class AuthTokenTableDAO {
             return [user, authToken];
         });
     }
+    // Todo: Test
     logout(authToken) {
         return __awaiter(this, void 0, void 0, function* () {
-            // TODO: Implement this method
-            throw new Error("Method not implemented.");
-            //Remove authtoken query from authtoken's alias
+            const params = {
+                TableName: this.AuthTokenTableName,
+                Key: {
+                    token: authToken.token
+                }
+            };
+            yield this.client.send(new lib_dynamodb_1.DeleteCommand(params)); // Remove authtoken from authtoken table
+            return;
         });
     }
     putImage(fileName, imageStringBase64Encoded) {
         return __awaiter(this, void 0, void 0, function* () {
+            console.log("Putting image into S3");
             let decodedImageBuffer = Buffer.from(imageStringBase64Encoded, "base64");
+            // const s3Params = {
+            //     Bucket: this.BUCKET,
+            //     Key: "image/" + fileName,
+            //     Body: decodedImageBuffer,
+            //     ContentType: "image/png",
+            //     ACL: ObjectCannedACL.public_read,
+            // };
             const s3Params = {
-                Bucket: this.BUCKET,
-                Key: "image/" + fileName,
-                Body: decodedImageBuffer,
-                ContentType: "image/png",
-                ACL: client_s3_1.ObjectCannedACL.public_read,
+                "Bucket": this.BUCKET,
+                "Key": "image/" + fileName,
+                "Body": decodedImageBuffer,
             };
-            const c = new client_s3_1.PutObjectCommand(s3Params);
+            console.log("Attemping to put object");
+            const c = yield new client_s3_1.PutObjectCommand(s3Params);
             try {
                 yield this.client.send(c);
                 return (`https://${this.BUCKET}.s3.${this.REGION}.amazonaws.com/image/${fileName}`);
@@ -112,7 +125,8 @@ class AuthTokenTableDAO {
             }
         });
     }
-    sexyPutImage(fileName, userImageBytes) {
+    //Doesn't work either
+    newPutImage(fileName, userImageBytes) {
         return __awaiter(this, void 0, void 0, function* () {
             const s3 = new aws_sdk_1.default.S3();
             try {
@@ -133,6 +147,7 @@ class AuthTokenTableDAO {
             }
         });
     }
+    // Done - Doesn't use correct s3 bucket
     register(firstName, lastName, alias, password, userImageBytes) {
         return __awaiter(this, void 0, void 0, function* () {
             const password_hashed = yield bcryptjs_1.default.hash(password, 1);
@@ -142,12 +157,16 @@ class AuthTokenTableDAO {
             if (userImageBytes === null) {
                 throw new Error("User image is null");
             }
-            console.log("Registering user with image bytes: " + userImageBytes.byteLength + userImageBytes);
-            let imageStringBase64 = Buffer.from(userImageBytes).toString("base64");
-            console.log("Image String Base64: " + imageStringBase64);
-            let image_URL = yield this.putImage(alias, imageStringBase64);
-            // let image_URL = "https://joshwiseman340.s3.us-east-1.amazonaws.com/image/" + alias; //TODO: Change this to the correct URL
-            console.log("Image URL: " + image_URL);
+            const tryForReal = false; //Change to true to actually put image into S3, false because it doesn't work
+            if (tryForReal) {
+                console.log("Registering user with image bytes: " + userImageBytes.byteLength + userImageBytes);
+                let imageStringBase64 = Buffer.from(userImageBytes).toString("base64"); //Convert to base64
+                console.log("Image String Base64: " + imageStringBase64);
+                // let image_URL = await this.putImage(alias, imageStringBase64); //Put image into S3
+                let image_URL = yield this.putImage(alias, "Image Test"); //Put image into S3
+                console.log("Image URL: " + image_URL);
+            }
+            let image_URL = "https://static.vecteezy.com/system/resources/previews/005/544/718/non_2x/profile-icon-design-free-vector.jpg"; //TODO: Change this to the correct URL
             //Put user variables, password_hashed, follower_count, followee_count into users table
             const params = {
                 TableName: "users",
@@ -162,9 +181,8 @@ class AuthTokenTableDAO {
                 }
             };
             yield this.client.send(new lib_dynamodb_1.PutCommand(params));
-            let user = new tweeter_shared_1.User(firstName, lastName, alias, image_URL);
-            const authToken = tweeter_shared_1.AuthToken.Generate();
-            // Put authtoken into authtoken table
+            let user = new tweeter_shared_1.User(firstName, lastName, alias, image_URL); // Making the user object to return
+            const authToken = tweeter_shared_1.AuthToken.Generate(); // Put authtoken into authtoken table
             const putParams = {
                 TableName: this.AuthTokenTableName,
                 Item: {

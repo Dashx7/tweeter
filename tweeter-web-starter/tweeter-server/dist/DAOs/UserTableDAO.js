@@ -16,8 +16,8 @@ const tweeter_shared_1 = require("tweeter-shared");
 //Usertable will be key alias, and have passwordHashed, first_name, last_name, image_URL, follower_count, followee_count
 class UserTableDAO {
     constructor() {
-        this.client = new client_dynamodb_1.DynamoDBClient({ region: "us-east-1" }); // replace with your region
-        this.tableName = "users"; // replace with your table name
+        this.client = new client_dynamodb_1.DynamoDBClient({ region: "us-east-1" });
+        this.tableName = "users";
     }
     getUser(alias) {
         return __awaiter(this, void 0, void 0, function* () {

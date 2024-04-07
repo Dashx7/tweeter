@@ -1,10 +1,5 @@
 import {
-    DeleteCommand,
-    DynamoDBDocumentClient,
     GetCommand,
-    PutCommand,
-    QueryCommand,
-    UpdateCommand,
 } from "@aws-sdk/lib-dynamodb";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { User } from "tweeter-shared";
@@ -12,13 +7,8 @@ import { User } from "tweeter-shared";
 //Usertable will be key alias, and have passwordHashed, first_name, last_name, image_URL, follower_count, followee_count
 
 export class UserTableDAO {
-    private client: DynamoDBClient;
-    private readonly tableName: string;
-
-    constructor() {
-        this.client = new DynamoDBClient({ region: "us-east-1" }); // replace with your region
-        this.tableName = "users"; // replace with your table name
-    }
+    private client: DynamoDBClient = new DynamoDBClient({ region: "us-east-1" });
+    private readonly tableName: string = "users";
 
     async getUser(alias: string): Promise<User> {
         const params = {

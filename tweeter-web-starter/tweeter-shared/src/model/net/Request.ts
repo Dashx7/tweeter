@@ -1,6 +1,6 @@
-import {AuthToken} from "../domain/AuthToken";
-import {User} from "../domain/User";
-import {Status} from "../domain/Status";
+import { AuthToken } from "../domain/AuthToken";
+import { User } from "../domain/User";
+import { Status } from "../domain/Status";
 
 export abstract class TweeterRequest {
 
@@ -78,6 +78,32 @@ export class PostStatusRequest extends TweeterRequest {
         this.authToken = authToken;
         this.newStatus = newStatus;
     }
+
+    static fromJson(postStatusRequest: PostStatusRequest): PostStatusRequest {
+        interface PostStatusRequestJson {
+            authToken: AuthToken;
+            newStatus: Status;
+        }
+        const jsonObject: PostStatusRequestJson = postStatusRequest as unknown as PostStatusRequestJson;
+        let deserializedAuthToken = AuthToken.fromJson(JSON.stringify(jsonObject.authToken));
+        let deserializedStatus = Status.fromJson(JSON.stringify(jsonObject.newStatus));
+        if (deserializedAuthToken === null) {
+            throw new Error(
+                "PostStatusRequest, could not deserialize authToken with json:\n" +
+                JSON.stringify(jsonObject.authToken)
+            );
+        }
+        if (deserializedStatus === null) {
+            throw new Error(
+                "PostStatusRequest, could not deserialize status with json:\n" +
+                JSON.stringify(jsonObject.newStatus)
+            );
+        }
+        return new PostStatusRequest(
+            deserializedAuthToken,
+            deserializedStatus
+        );
+    }
 }
 
 export class LoadMoreUserItemsRequest extends TweeterRequest {
@@ -106,6 +132,13 @@ export class GetIsFollowerRequest extends TweeterRequest {
         this.user = user;
         this.selectedUser = selectedUser;
     }
+
+    static fromJson(json: any): GetIsFollowerRequest {
+        const authToken = AuthToken.fromJson(json.authToken);
+        const user = User.fromJson(json.user);
+        const selectedUser = User.fromJson(json.selectedUser);
+        return new GetIsFollowerRequest(authToken!, user!, selectedUser!);
+    }
 }
 
 export class FollowerOperationsRequest extends TweeterRequest {
@@ -116,5 +149,48 @@ export class FollowerOperationsRequest extends TweeterRequest {
         super();
         this.authToken = authToken;
         this.user = user;
+    }
+
+    static fromJson(followerOperationRequest: FollowerOperationsRequest): FollowerOperationsRequest {
+        interface FollowerOperationsRequestJson {
+            authToken: AuthToken;
+            user: User;
+        }
+        console.log("FollowerOperationsRequest.fromJson: json: " + JSON.stringify(followerOperationRequest));
+
+        const jsonObject: FollowerOperationsRequestJson =
+            followerOperationRequest as unknown as FollowerOperationsRequestJson;
+
+        console.log("FollowerOperationsRequest.fromJson: jsonObject: " + JSON.stringify(jsonObject));
+
+        let deserializedAuthToken = AuthToken.fromJson(JSON.stringify(jsonObject.authToken));
+        let deserializedUser = User.fromJson(JSON.stringify(jsonObject.user));
+        console.log("FollowerOperationsRequest.fromJson: deserializedAuthToken: " + JSON.stringify(deserializedAuthToken));
+        console.log("FollowerOperationsRequest.fromJson: deserializedUser: " + JSON.stringify(deserializedUser));
+
+        if (deserializedAuthToken === null) {
+            throw new Error(
+                "FollowerOperationsRequest, could not deserialize authToken with json:\n" +
+                JSON.stringify(jsonObject.authToken)
+            );
+        }
+
+        if (deserializedUser === null) {
+            throw new Error(
+                "FollowerOperationsRequest, could not deserialize user with json:\n" +
+                JSON.stringify(jsonObject.user)
+            );
+        }
+        if (deserializedAuthToken == null || deserializedUser == null) {
+            throw new Error(
+                "FollowerOperationsRequest, Auth or user is implicitly null with json:\n" +
+                JSON.stringify(jsonObject.user)
+            );
+        }
+
+        return new FollowerOperationsRequest(
+            deserializedAuthToken,
+            deserializedUser
+        );
     }
 }

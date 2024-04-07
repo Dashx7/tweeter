@@ -24,6 +24,9 @@ export class UserService {
         userImageBytes: Uint8Array
     ): Promise<[User, AuthToken]> {
         console.log("Registering user with image bytes: " + userImageBytes.byteLength + userImageBytes);
+        if (userImageBytes.length === 0) {
+            throw new Error("User image is empty");
+        }
         const response = await new ServerFacade().register(new RegisterRequest(firstName, lastName, alias, password, Buffer.from(userImageBytes).toString('base64')));
         return [response.user, response.token];
     };

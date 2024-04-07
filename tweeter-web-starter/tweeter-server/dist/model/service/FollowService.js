@@ -38,15 +38,14 @@ class FollowService {
     getFolloweesCount(authToken, user) {
         return __awaiter(this, void 0, void 0, function* () {
             // TODO: Replace with the result of calling server
-            return tweeter_shared_1.FakeData.instance.getFolloweesCount(user);
+            // return FakeData.instance.getFolloweesCount(user);
+            return this.followDAO.getFolloweesCount(authToken, user);
         });
     }
     ;
     getFollowersCount(authToken, user) {
         return __awaiter(this, void 0, void 0, function* () {
-            // TODO: Replace with the result of calling server
-            return tweeter_shared_1.FakeData.instance.getFollowersCount(user);
-            // return this.followDAO.getFollowersCount(authToken, user);
+            return this.followDAO.getFollowersCount(authToken, user);
         });
     }
     ;

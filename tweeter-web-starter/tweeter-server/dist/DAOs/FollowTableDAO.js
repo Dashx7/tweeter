@@ -17,8 +17,9 @@ const lib_dynamodb_1 = require("@aws-sdk/lib-dynamodb");
 // The other is key followee_alias, and assocites followee_username, follow_alias and follow_username (This one is to find all the people that follow them)
 class FollowTableDAO {
     constructor() {
-        this.client = new client_dynamodb_1.DynamoDBClient({ region: "us-east-1" }); // replace with your region
-        this.tableName = "follows"; // replace with your table name
+        this.client = new client_dynamodb_1.DynamoDBClient({ region: "us-east-1" });
+        this.followTableName = "follows";
+        this.userTableName = "users";
         this.followeeName = "followee_name";
         this.followeeHandle = "followee_handle";
         this.followerName = "follower_name";
@@ -44,27 +45,42 @@ class FollowTableDAO {
     }
     getFolloweesCount(authToken, user) {
         return __awaiter(this, void 0, void 0, function* () {
-            // TODO: Implement this method
-            throw new Error("Method not implemented.");
+            console.log("User: " + JSON.stringify(user));
+            const aliasToUse = user.alias;
+            console.log("Alias to use: " + aliasToUse);
+            const params = {
+                TableName: this.userTableName,
+                Key: {
+                    'alias': aliasToUse,
+                },
+            };
+            console.log("Attempting to get followee count of " + aliasToUse);
+            const output = yield this.client.send(new lib_dynamodb_1.GetCommand(params));
+            if (!output.Item || !output.Item.followee_count || !output.Item.followee_count.N) {
+                return 0;
+            }
+            console.log("Output count :" + output.Item.followee_count.N);
+            return Number(output.Item.followee_count.N);
         });
     }
     getFollowersCount(authToken, user) {
         return __awaiter(this, void 0, void 0, function* () {
+            console.log("User: " + JSON.stringify(user));
+            const aliasToUse = user.alias;
+            console.log("Alias to use: " + aliasToUse);
             const params = {
-                TableName: this.tableName,
-                IndexName: 'followee_index',
-                KeyConditionExpression: 'followee_handle = :followee_handle',
-                ExpressionAttributeValues: {
-                    ':followee_handle': { S: user.alias },
+                TableName: this.userTableName,
+                Key: {
+                    'alias': aliasToUse,
                 },
-                Select: client_dynamodb_1.Select.COUNT,
             };
-            const output = yield this.client.send(new lib_dynamodb_1.QueryCommand(params));
-            if (output.Count === undefined) {
+            console.log("Attempting to get follower count of " + aliasToUse);
+            const output = yield this.client.send(new lib_dynamodb_1.GetCommand(params));
+            if (!output.Item || !output.Item.follower_count || !output.Item.follower_count.N) {
                 return 0;
             }
-            console.log("Output count :" + output.Count);
-            return output.Count;
+            console.log("Output count :" + output.Item.follower_count.N);
+            return Number(output.Item.follower_count.N);
         });
     }
     follow(authToken, userToFollow) {
