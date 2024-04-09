@@ -12,11 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.StatusService = void 0;
 const tweeter_shared_1 = require("tweeter-shared");
 const BaseService_1 = require("./BaseService");
-class StatusService {
-    constructor() {
-        this.storyService = new BaseService_1.BaseService().getStoryDAO();
-        this.feedService = new BaseService_1.BaseService().getFeedDAO();
-    }
+class StatusService extends BaseService_1.BaseService {
     loadMoreFeedItems(authToken, user, pageSize, lastItem) {
         return __awaiter(this, void 0, void 0, function* () {
             // TODO: Replace with the result of calling server
@@ -25,14 +21,17 @@ class StatusService {
     }
     loadMoreStoryItems(authToken, user, pageSize, lastItem) {
         return __awaiter(this, void 0, void 0, function* () {
-            // TODO: Replace with the result of calling server
-            return tweeter_shared_1.FakeData.instance.getPageOfStatuses(lastItem, pageSize);
+            console.log("Loading more story items");
+            console.log("User: " + user.toJson());
+            console.log("PageSize: " + pageSize);
+            console.log("LastItem: " + lastItem);
+            return this.getStoryDAO().loadMoreStoryItems(authToken, user, pageSize, lastItem);
         });
     }
     postStatus(authToken, newStatus) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield this.storyService.postStatus(authToken, newStatus);
-            // await this.feedService.postStatus(authToken, newStatus);
+            yield this.getStoryDAO().postStatus(authToken, newStatus);
+            // await this.feedService.postStatus(authToken, newStatus); // This will be changed in 4b
             return;
         });
     }

@@ -12,11 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserService = void 0;
 const tweeter_shared_1 = require("tweeter-shared");
 const BaseService_1 = require("./BaseService");
-class UserService {
-    constructor() {
-        this.userDAO = new BaseService_1.BaseService().getUserDAO();
-        this.authTokenDAO = new BaseService_1.BaseService().getAuthTokenDAO();
-    }
+class UserService extends BaseService_1.BaseService {
     login(alias, password) {
         return __awaiter(this, void 0, void 0, function* () {
             // TODO: Replace with the result of calling the server
@@ -24,14 +20,14 @@ class UserService {
             if (user === null) {
                 throw new Error("Invalid alias or password");
             }
-            return yield this.authTokenDAO.login(alias, password);
+            return yield this.getAuthTokenDAO().login(alias, password);
         });
     }
     ;
     register(firstName, lastName, alias, password, userImageBytes) {
         return __awaiter(this, void 0, void 0, function* () {
             console.log("Registering user with image bytes: " + userImageBytes.byteLength + userImageBytes);
-            const response = yield this.authTokenDAO.register(firstName, lastName, alias, password, userImageBytes);
+            const response = yield this.getAuthTokenDAO().register(firstName, lastName, alias, password, userImageBytes);
             console.log(response);
             return response;
         });
@@ -40,13 +36,14 @@ class UserService {
     logout(authToken) {
         return __awaiter(this, void 0, void 0, function* () {
             // Pause so we can see the logging out message. Delete when the call to the server is implemented.
-            yield new Promise((res) => setTimeout(res, 1000));
+            // await new Promise((res) => setTimeout(res, 1000));
+            return yield this.getAuthTokenDAO().logout(authToken);
         });
     }
     ;
     getUser(authToken, alias) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield this.userDAO.getUser(alias);
+            return yield this.getUserDAO().getUser(alias);
         });
     }
     ;

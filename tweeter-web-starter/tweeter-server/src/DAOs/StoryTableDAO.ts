@@ -1,8 +1,9 @@
 import { AuthToken, User, Status } from "tweeter-shared";
 import { StoryTableInterface } from "./AbstractStoryTableDAO";
-import { DynamoDBClient, QueryCommand } from "@aws-sdk/client-dynamodb";
-import { GetCommand, PutCommand } from "@aws-sdk/lib-dynamodb";
+import { DynamoDBClient, QueryCommand, ReturnValue } from "@aws-sdk/client-dynamodb";
+import { QueryCommandInput, UpdateCommand } from "@aws-sdk/lib-dynamodb";
 import { UserTableDAO } from "./UserTableDAO";
+import { AuthTokenTableDAO } from "./AuthTokenTableDAO";
 
 //Story table will have the key alias, and associate those with their statuses sorted by timestame
 
@@ -19,52 +20,33 @@ export class StoryTableDAO implements StoryTableInterface {
         pageSize: number,
         lastItem: Status | null
     ): Promise<[Status[], boolean]> {
-        const getParams = {
-            TableName: this.storyTableName,
-            Key: {
-                sender_alias: user.alias
+        console.log("Auth token " + authToken.token);
+        AuthTokenTableDAO.authenticate(authToken);
+        const alias = user.alias;
+        console.log("Alias in query " + alias);
+
+        const params: QueryCommandInput = {
+            TableName: "stories",
+            KeyConditionExpression: "#alias = :alias",
+            ExpressionAttributeNames: {
+                "#alias": "alias"
+            },
+            ExpressionAttributeValues: {
+                ":alias": alias
             }
         };
-        const responseToQuery = await this.client.send(new QueryCommand(getParams));
-        console.log(responseToQuery);
+
+        const responseToQuery = await this.client.send(new QueryCommand(params));
+        console.log("Finished response");
 
         if (responseToQuery.Items == null) {
+            console.log("No statuses found");
             return [[], false]; // User has no statuses
         }
-
-        // Get the user associated with the statuses
-
-
-        // let statuses: Status[] = responseToQuery.Items.map((item: any) => {
-        //     let user = new User(
-        //         item.sender_alias.S,
-        //         item.first_name.S,
-        //         item.last_name.S,
-        //         item.image_URL.S,
-        //     );
-
-        //     let segments = item.segments.L.map((segmentItem: any) => {
-        //         return new PostSegment(
-        //             segmentItem.segment_type.S,
-        //             segmentItem.content.S
-        //             // add more parameters if PostSegment constructor requires
-        //         );
-        //     });
-
-        //     return new Status(
-        //         item.post.S,
-        //         user,
-        //         Number(item.time_stamp.N)
-        //     );
-        // });
-
-        // return new Status(
-        //     item.post.S,
-        //     user,
-        //     Number(item.time_stamp.N),
-        //     segments
-        // );
-
+        if (responseToQuery.Items && responseToQuery.Items.length > 0) {
+            // It's safe to access responseToQuery.Items[0]
+            console.log(responseToQuery.Items[0]);
+        }
         return [[], false]; //Temp
     }
 
@@ -73,29 +55,39 @@ export class StoryTableDAO implements StoryTableInterface {
         authToken: AuthToken,
         status: Status
     ): Promise<void> {
-
+        AuthTokenTableDAO.authenticate(authToken);
         const alias = status.user.alias; //Pulling the alias from the status's user
+        console.log(status.segments);
         const formattedSegments = status.segments.map(segment => ({ // This is to format the segments to be put into the database
             text: segment.text,
             startPostion: segment.startPostion,
             endPosition: segment.endPosition,
             type: segment.type
         }));
+        if (formattedSegments === null) {
+            throw new Error("Error formatting segments");
+        }
         console.log(formattedSegments);
-        const putParams = {
+
+        const updateParams = {
             TableName: this.storyTableName,
-            Item: {
-                alias: alias,
-                time_stamp: status.timestamp,
-                post: status.post,
-                segments: formattedSegments,
-            }
+            Key: {
+                alias: alias.toString(),
+                time_stamp: status.timestamp.toString()
+            },
+            UpdateExpression: 'SET status_segments = list_append(if_not_exists(status_segments, :empty_list), :newSegment)',
+            ExpressionAttributeValues: {
+                ':newSegment': [formattedSegments],
+                ':empty_list': []
+            },
+            ReturnValues: ReturnValue.UPDATED_NEW
         };
-        const responseToStatusPut = await this.client.send(new PutCommand(putParams));
-        if (responseToStatusPut == null) {
+
+        const responseToUpdate = await this.client.send(new UpdateCommand(updateParams));
+        if (responseToUpdate == null) {
             throw new Error("Error posting status");
         }
-        console.log(responseToStatusPut);
+        console.log(responseToUpdate);
 
         return;
     }

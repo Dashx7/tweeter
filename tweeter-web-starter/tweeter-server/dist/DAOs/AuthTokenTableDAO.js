@@ -19,6 +19,7 @@ const lib_dynamodb_1 = require("@aws-sdk/lib-dynamodb");
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const client_s3_1 = require("@aws-sdk/client-s3");
 const aws_sdk_1 = __importDefault(require("aws-sdk"));
+const UserTableDAO_1 = require("./UserTableDAO");
 //AuthToken Table will have the key alias, and token and timestamp
 class AuthTokenTableDAO {
     constructor() {
@@ -27,6 +28,40 @@ class AuthTokenTableDAO {
         this.client = new client_dynamodb_1.DynamoDBClient({ region: "us-east-1" }); // replacere with your region
         this.AuthTokenTableName = "authtokens"; // replace with your table name
         this.usersTableName = "users";
+    }
+    static authenticate(authToken) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (authToken.token == null) {
+                throw new Error("Authenticate sees that AuthToken token is null");
+            }
+            return true;
+        });
+    }
+    static findUserByAuthToken(authToken) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (authToken.token == null) {
+                throw new Error("AuthToken token is null");
+            }
+            const client = new client_dynamodb_1.DynamoDBClient({ region: "us-east-1" });
+            const AuthTokenTableName = "authtokens";
+            const params = {
+                TableName: AuthTokenTableName,
+                Key: {
+                    token: authToken.token
+                }
+            };
+            const response = yield client.send(new lib_dynamodb_1.GetCommand(params));
+            if (!response.Item) {
+                throw new Error(`AuthToken with token ${authToken.token} not found`);
+            }
+            if (!response.Item.alias) {
+                throw new Error(`AuthToken with token ${authToken.token} is missing alias field`);
+            }
+            console.log(response.Item);
+            const userTableDAO = new UserTableDAO_1.UserTableDAO();
+            const user = yield userTableDAO.getUser(response.Item.alias);
+            return user;
+        });
     }
     login(aliasToUse, password) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -88,6 +123,7 @@ class AuthTokenTableDAO {
     // Todo: Test
     logout(authToken) {
         return __awaiter(this, void 0, void 0, function* () {
+            AuthTokenTableDAO.authenticate(authToken);
             const params = {
                 TableName: this.AuthTokenTableName,
                 Key: {
@@ -150,6 +186,18 @@ class AuthTokenTableDAO {
     // Done - Doesn't use correct s3 bucket
     register(firstName, lastName, alias, password, userImageBytes) {
         return __awaiter(this, void 0, void 0, function* () {
+            // Check if alias is already in use
+            const paramsCheck = {
+                TableName: this.usersTableName,
+                Key: {
+                    alias: alias
+                }
+            };
+            const responseCheck = yield this.client.send(new lib_dynamodb_1.GetCommand(paramsCheck));
+            if (responseCheck.Item) {
+                throw new Error("Alias already in use");
+            }
+            console.log("Alias is available");
             const password_hashed = yield bcryptjs_1.default.hash(password, 1);
             let follower_count = 0;
             let followee_count = 0;

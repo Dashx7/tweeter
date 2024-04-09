@@ -13,6 +13,7 @@ exports.StoryTableDAO = void 0;
 const client_dynamodb_1 = require("@aws-sdk/client-dynamodb");
 const lib_dynamodb_1 = require("@aws-sdk/lib-dynamodb");
 const UserTableDAO_1 = require("./UserTableDAO");
+const AuthTokenTableDAO_1 = require("./AuthTokenTableDAO");
 //Story table will have the key alias, and associate those with their statuses sorted by timestame
 class StoryTableDAO {
     constructor() {
@@ -24,65 +25,67 @@ class StoryTableDAO {
     // TODO: Finish implementing and test
     loadMoreStoryItems(authToken, user, pageSize, lastItem) {
         return __awaiter(this, void 0, void 0, function* () {
-            const getParams = {
-                TableName: this.storyTableName,
-                Key: {
-                    sender_alias: user.alias
+            console.log("Auth token " + authToken.token);
+            AuthTokenTableDAO_1.AuthTokenTableDAO.authenticate(authToken);
+            const alias = user.alias;
+            console.log("Alias in query " + alias);
+            const params = {
+                TableName: "stories",
+                KeyConditionExpression: "#alias = :alias",
+                ExpressionAttributeNames: {
+                    "#alias": "alias"
+                },
+                ExpressionAttributeValues: {
+                    ":alias": alias
                 }
             };
-            const responseToQuery = yield this.client.send(new client_dynamodb_1.QueryCommand(getParams));
-            console.log(responseToQuery);
+            const responseToQuery = yield this.client.send(new client_dynamodb_1.QueryCommand(params));
+            console.log("Finished response");
             if (responseToQuery.Items == null) {
+                console.log("No statuses found");
                 return [[], false]; // User has no statuses
             }
-            // Get the user associated with the statuses
-            // let statuses: Status[] = responseToQuery.Items.map((item: any) => {
-            //     let user = new User(
-            //         item.sender_alias.S,
-            //         item.first_name.S,
-            //         item.last_name.S,
-            //         item.image_URL.S,
-            //     );
-            //     let segments = item.segments.L.map((segmentItem: any) => {
-            //         return new PostSegment(
-            //             segmentItem.segment_type.S,
-            //             segmentItem.content.S
-            //             // add more parameters if PostSegment constructor requires
-            //         );
-            //     });
-            //     return new Status(
-            //         item.post.S,
-            //         user,
-            //         Number(item.time_stamp.N)
-            //     );
-            // });
-            // return new Status(
-            //     item.post.S,
-            //     user,
-            //     Number(item.time_stamp.N),
-            //     segments
-            // );
+            if (responseToQuery.Items && responseToQuery.Items.length > 0) {
+                // It's safe to access responseToQuery.Items[0]
+                console.log(responseToQuery.Items[0]);
+            }
             return [[], false]; //Temp
         });
     }
     // TODO: Test
     postStatus(authToken, status) {
         return __awaiter(this, void 0, void 0, function* () {
+            AuthTokenTableDAO_1.AuthTokenTableDAO.authenticate(authToken);
             const alias = status.user.alias; //Pulling the alias from the status's user
-            const putParams = {
+            console.log(status.segments);
+            const formattedSegments = status.segments.map(segment => ({
+                text: segment.text,
+                startPostion: segment.startPostion,
+                endPosition: segment.endPosition,
+                type: segment.type
+            }));
+            if (formattedSegments === null) {
+                throw new Error("Error formatting segments");
+            }
+            console.log(formattedSegments);
+            const updateParams = {
                 TableName: this.storyTableName,
-                Item: {
-                    alias: alias,
-                    time_stamp: status.timestamp,
-                    post: status.post,
-                    segments: status.segments,
-                }
+                Key: {
+                    alias: alias.toString(),
+                    time_stamp: status.timestamp.toString()
+                },
+                UpdateExpression: 'SET status_segments = list_append(if_not_exists(status_segments, :empty_list), :newSegment)',
+                ExpressionAttributeValues: {
+                    ':newSegment': [formattedSegments],
+                    ':empty_list': []
+                },
+                ReturnValues: client_dynamodb_1.ReturnValue.UPDATED_NEW
             };
-            const responseToStatusPut = yield this.client.send(new lib_dynamodb_1.PutCommand(putParams));
-            if (responseToStatusPut == null) {
+            const responseToUpdate = yield this.client.send(new lib_dynamodb_1.UpdateCommand(updateParams));
+            if (responseToUpdate == null) {
                 throw new Error("Error posting status");
             }
-            console.log(responseToStatusPut);
+            console.log(responseToUpdate);
             return;
         });
     }

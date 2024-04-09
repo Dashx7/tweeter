@@ -14,6 +14,9 @@ const tweeter_shared_1 = require("tweeter-shared");
 const StatusService_1 = require("../model/service/StatusService");
 const IntegrationResponseCommon_1 = require("./IntegrationResponseCommon");
 let handler = (event) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log("LoadMoreStatusItemsRequest: " + JSON.stringify(event));
+    event = tweeter_shared_1.LoadMoreStatusItemsRequest.fromJson(event);
+    console.log("LoadMoreStatusItemsRequest Processed: " + JSON.stringify(event));
     if (event.authToken == null) {
         throw new Error(IntegrationResponseCommon_1.BAD_REQUEST + "authToken is undefined");
     }

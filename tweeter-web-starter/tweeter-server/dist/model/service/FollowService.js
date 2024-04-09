@@ -12,10 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.FollowService = void 0;
 const tweeter_shared_1 = require("tweeter-shared");
 const BaseService_1 = require("./BaseService");
-class FollowService {
-    constructor() {
-        this.followDAO = new BaseService_1.BaseService().getFollowDAO();
-    }
+class FollowService extends BaseService_1.BaseService {
     loadMoreFollowers(authToken, user, pageSize, lastItem) {
         return __awaiter(this, void 0, void 0, function* () {
             // TODO: Replace with the result of calling server
@@ -30,30 +27,25 @@ class FollowService {
     }
     getIsFollowerStatus(authToken, user, selectedUser) {
         return __awaiter(this, void 0, void 0, function* () {
-            // TODO: Replace with the result of calling server
-            return tweeter_shared_1.FakeData.instance.isFollower();
+            return this.getFollowDAO().getIsFollowerStatus(authToken, user, selectedUser);
         });
     }
     ;
     getFolloweesCount(authToken, user) {
         return __awaiter(this, void 0, void 0, function* () {
-            // TODO: Replace with the result of calling server
-            // return FakeData.instance.getFolloweesCount(user);
-            return this.followDAO.getFolloweesCount(authToken, user);
+            return this.getFollowDAO().getFolloweesCount(authToken, user);
         });
     }
     ;
     getFollowersCount(authToken, user) {
         return __awaiter(this, void 0, void 0, function* () {
-            return this.followDAO.getFollowersCount(authToken, user);
+            return this.getFollowDAO().getFollowersCount(authToken, user);
         });
     }
     ;
     follow(authToken, userToFollow) {
         return __awaiter(this, void 0, void 0, function* () {
-            // Pause so we can see the following message. Remove when connected to the server
-            yield new Promise((f) => setTimeout(f, 2000));
-            // TODO: Call the server
+            this.getFollowDAO().follow(authToken, userToFollow);
             let followersCount = yield this.getFollowersCount(authToken, userToFollow);
             let followeesCount = yield this.getFolloweesCount(authToken, userToFollow);
             return [followersCount, followeesCount];
@@ -62,9 +54,7 @@ class FollowService {
     ;
     unfollow(authToken, userToUnfollow) {
         return __awaiter(this, void 0, void 0, function* () {
-            // Pause so we can see the unfollowing message. Remove when connected to the server
-            yield new Promise((f) => setTimeout(f, 2000));
-            // TODO: Call the server
+            this.getFollowDAO().unfollow(authToken, userToUnfollow);
             let followersCount = yield this.getFollowersCount(authToken, userToUnfollow);
             let followeesCount = yield this.getFolloweesCount(authToken, userToUnfollow);
             return [followersCount, followeesCount];

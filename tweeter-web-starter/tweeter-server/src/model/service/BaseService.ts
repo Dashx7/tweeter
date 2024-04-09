@@ -1,4 +1,5 @@
 //Has all the DAOS
+import { AuthToken } from "tweeter-shared";
 import { ConcreteDAOFactory } from "../../DAOs/DAOFactories";
 
 //public DAO

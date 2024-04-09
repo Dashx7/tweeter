@@ -1,10 +1,14 @@
 import {
     LoadMoreUserItemsRequest, LoadMoreUserItemsResponse
 } from "tweeter-shared";
-import {FollowService} from "../model/service/FollowService";
-import {BAD_REQUEST, performErrorReportingOperation} from "./IntegrationResponseCommon";
+import { FollowService } from "../model/service/FollowService";
+import { BAD_REQUEST, performErrorReportingOperation } from "./IntegrationResponseCommon";
 
 export let handler = async (event: LoadMoreUserItemsRequest): Promise<LoadMoreUserItemsResponse> => {
+    console.log("LoadMoreUserItemsRequest: " + JSON.stringify(event));
+    event = LoadMoreUserItemsRequest.fromJson(event);
+    console.log("LoadMoreUserItemsRequest Processed: " + JSON.stringify(event));
+
     if (event.authToken == null) {
         throw new Error(BAD_REQUEST + "authToken is undefined");
     }

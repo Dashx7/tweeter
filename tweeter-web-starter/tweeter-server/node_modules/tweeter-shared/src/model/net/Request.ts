@@ -2,9 +2,7 @@ import { AuthToken } from "../domain/AuthToken";
 import { User } from "../domain/User";
 import { Status } from "../domain/Status";
 
-export abstract class TweeterRequest {
-
-}
+export abstract class TweeterRequest { }
 
 export class LoginRequest extends TweeterRequest {
     alias: string;
@@ -67,6 +65,36 @@ export class LoadMoreStatusItemsRequest extends TweeterRequest {
         this.pageSize = pageSize;
         this.lastItem = lastItem;
     }
+    static fromJson(loadMoreStatusItemsRequest: LoadMoreStatusItemsRequest): LoadMoreStatusItemsRequest {
+        interface LoadMoreStatusItemsRequestJson {
+            authToken: AuthToken;
+            user: User;
+            pageSize: number;
+            lastItem: Status | null;
+        }
+        const jsonObject: LoadMoreStatusItemsRequestJson = loadMoreStatusItemsRequest as unknown as LoadMoreStatusItemsRequestJson;
+        let deserializedAuthToken = AuthToken.fromJson(JSON.stringify(jsonObject.authToken));
+        let deserializedUser = User.fromJson(JSON.stringify(jsonObject.user));
+        let deserializedLastItem = jsonObject.lastItem ? Status.fromJson(JSON.stringify(jsonObject.lastItem)) : null;
+        if (deserializedAuthToken === null) {
+            throw new Error(
+                "LoadMoreStatusItemsRequest, could not deserialize authToken with json:\n" +
+                JSON.stringify(jsonObject.authToken)
+            );
+        }
+        if (deserializedUser === null) {
+            throw new Error(
+                "LoadMoreStatusItemsRequest, could not deserialize user with json:\n" +
+                JSON.stringify(jsonObject.user)
+            );
+        }
+        return new LoadMoreStatusItemsRequest(
+            deserializedAuthToken,
+            deserializedUser,
+            jsonObject.pageSize,
+            deserializedLastItem
+        );
+    }
 }
 
 export class PostStatusRequest extends TweeterRequest {
@@ -118,6 +146,36 @@ export class LoadMoreUserItemsRequest extends TweeterRequest {
         this.user = user;
         this.pageSize = pageSize;
         this.lastItem = lastItem;
+    }
+    static fromJson(loadMoreUserItemsRequest: LoadMoreUserItemsRequest): LoadMoreUserItemsRequest {
+        interface LoadMoreUserItemsRequestJson {
+            authToken: AuthToken;
+            user: User;
+            pageSize: number;
+            lastItem: User | null;
+        }
+        const jsonObject: LoadMoreUserItemsRequestJson = loadMoreUserItemsRequest as unknown as LoadMoreUserItemsRequestJson;
+        let deserializedAuthToken = AuthToken.fromJson(JSON.stringify(jsonObject.authToken));
+        let deserializedUser = User.fromJson(JSON.stringify(jsonObject.user));
+        let deserializedLastItem = jsonObject.lastItem ? User.fromJson(JSON.stringify(jsonObject.lastItem)) : null;
+        if (deserializedAuthToken === null) {
+            throw new Error(
+                "LoadMoreUserItemsRequest, could not deserialize authToken with json:\n" +
+                JSON.stringify(jsonObject.authToken)
+            );
+        }
+        if (deserializedUser === null) {
+            throw new Error(
+                "LoadMoreUserItemsRequest, could not deserialize user with json:\n" +
+                JSON.stringify(jsonObject.user)
+            );
+        }
+        return new LoadMoreUserItemsRequest(
+            deserializedAuthToken,
+            deserializedUser,
+            jsonObject.pageSize,
+            deserializedLastItem
+        );
     }
 }
 

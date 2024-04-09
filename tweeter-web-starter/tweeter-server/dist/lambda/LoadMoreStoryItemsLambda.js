@@ -23,9 +23,22 @@ let handler = (event) => __awaiter(void 0, void 0, void 0, function* () {
     if (event.pageSize == null) {
         throw new Error(IntegrationResponseCommon_1.BAD_REQUEST + "pageSize is undefined");
     }
+    //Last item can be null
     console.log("Event: " + JSON.stringify(event));
+    const processedEvent = tweeter_shared_1.LoadMoreStatusItemsRequest.fromJson(event); // T
+    console.log("Processed Event: " + JSON.stringify(processedEvent));
+    if (processedEvent.authToken == null) {
+        throw new Error(IntegrationResponseCommon_1.BAD_REQUEST + "authToken is undefined after processing");
+    }
+    if (processedEvent.user == null) {
+        throw new Error(IntegrationResponseCommon_1.BAD_REQUEST + "user is undefined after processing");
+    }
+    if (processedEvent.pageSize == null) {
+        throw new Error(IntegrationResponseCommon_1.BAD_REQUEST + "pageSize is undefined after processing");
+    }
+    //Last item can be null
     return yield (0, IntegrationResponseCommon_1.performErrorReportingOperation)(() => __awaiter(void 0, void 0, void 0, function* () {
-        return new tweeter_shared_1.LoadMoreStatusItemsResponse(true, ...(yield new StatusService_1.StatusService().loadMoreStoryItems(event.authToken, event.user, event.pageSize, !!event.lastItem ? tweeter_shared_1.Status.fromJson(JSON.stringify(event.lastItem)) : null)));
+        return new tweeter_shared_1.LoadMoreStatusItemsResponse(true, ...(yield new StatusService_1.StatusService().loadMoreStoryItems(processedEvent.authToken, processedEvent.user, processedEvent.pageSize, processedEvent.lastItem)));
     }));
 });
 exports.handler = handler;

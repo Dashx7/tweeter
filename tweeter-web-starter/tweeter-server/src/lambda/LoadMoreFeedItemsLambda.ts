@@ -6,6 +6,10 @@ import { BAD_REQUEST, performErrorReportingOperation } from "./IntegrationRespon
 import { AuthToken } from "tweeter-shared";
 
 export let handler = async (event: LoadMoreStatusItemsRequest): Promise<LoadMoreStatusItemsResponse> => {
+    console.log("LoadMoreStatusItemsRequest: " + JSON.stringify(event));
+    event = LoadMoreStatusItemsRequest.fromJson(event);
+    console.log("LoadMoreStatusItemsRequest Processed: " + JSON.stringify(event));
+
     if (event.authToken == null) {
         throw new Error(BAD_REQUEST + "authToken is undefined");
     }

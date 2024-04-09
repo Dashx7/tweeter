@@ -8,6 +8,7 @@ import {
     ObjectCannedACL,
 } from "@aws-sdk/client-s3";
 import AWS from 'aws-sdk';
+import { UserTableDAO } from "./UserTableDAO";
 
 //AuthToken Table will have the key alias, and token and timestamp
 
@@ -23,6 +24,44 @@ export class AuthTokenTableDAO implements AuthTokenTableInterface {
         this.AuthTokenTableName = "authtokens"; // replace with your table name
         this.usersTableName = "users";
     }
+
+    static async authenticate(authToken: AuthToken): Promise<boolean> {
+        if (authToken.token == null) {
+            throw new Error("Authenticate sees that AuthToken token is null");
+        }
+        return true;
+    }
+
+    static async findUserByAuthToken(authToken: AuthToken): Promise<User> {
+        if (authToken.token == null) {
+            throw new Error("AuthToken token is null");
+        }
+
+        const client = new DynamoDBClient({ region: "us-east-1" });
+        const AuthTokenTableName = "authtokens";
+
+        const params = {
+            TableName: AuthTokenTableName,
+            Key: {
+                token: authToken.token
+            }
+        };
+
+        const response = await client.send(new GetCommand(params));
+
+        if (!response.Item) {
+            throw new Error(`AuthToken with token ${authToken.token} not found`);
+        }
+        if (!response.Item.alias) {
+            throw new Error(`AuthToken with token ${authToken.token} is missing alias field`);
+        }
+        console.log(response.Item);
+
+        const userTableDAO = new UserTableDAO();
+        const user = await userTableDAO.getUser(response.Item.alias);
+        return user;
+    }
+
     async login(aliasToUse: string, password: string): Promise<[User, AuthToken]> {
         const params = {
             TableName: this.usersTableName,
@@ -89,6 +128,7 @@ export class AuthTokenTableDAO implements AuthTokenTableInterface {
 
     // Todo: Test
     async logout(authToken: AuthToken): Promise<void> {
+        AuthTokenTableDAO.authenticate(authToken);
         const params = {
             TableName: this.AuthTokenTableName,
             Key: {
@@ -165,6 +205,18 @@ export class AuthTokenTableDAO implements AuthTokenTableInterface {
         password: string,
         userImageBytes: Uint8Array
     ): Promise<[User, AuthToken]> {
+        // Check if alias is already in use
+        const paramsCheck = {
+            TableName: this.usersTableName,
+            Key: {
+                alias: alias
+            }
+        };
+        const responseCheck = await this.client.send(new GetCommand(paramsCheck));
+        if (responseCheck.Item) {
+            throw new Error("Alias already in use");
+        }
+        console.log("Alias is available");
 
         const password_hashed = await bcrypt.hash(password, 1);
         let follower_count = 0;

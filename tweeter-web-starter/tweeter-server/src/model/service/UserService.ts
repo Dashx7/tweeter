@@ -1,17 +1,7 @@
 import { AuthToken, FakeData, User } from "tweeter-shared";
 import { BaseService } from "./BaseService";
-import bcrpt from "bcryptjs";
-import {
-    S3Client,
-    PutObjectCommand,
-    ObjectCannedACL,
-} from "@aws-sdk/client-s3";
-import { PutCommand } from "@aws-sdk/lib-dynamodb";
 
-export class UserService {
-    private userDAO = new BaseService().getUserDAO();
-    private authTokenDAO = new BaseService().getAuthTokenDAO();
-
+export class UserService extends BaseService {
     public async login(
         alias: string,
         password: string
@@ -23,9 +13,8 @@ export class UserService {
             throw new Error("Invalid alias or password");
         }
 
-        return await this.authTokenDAO.login(alias, password);
+        return await this.getAuthTokenDAO().login(alias, password);
     };
-
 
 
     public async register(
@@ -36,14 +25,15 @@ export class UserService {
         userImageBytes: Uint8Array
     ): Promise<[User, AuthToken]> {
         console.log("Registering user with image bytes: " + userImageBytes.byteLength + userImageBytes);
-        const response = await this.authTokenDAO.register(firstName, lastName, alias, password, userImageBytes);
+        const response = await this.getAuthTokenDAO().register(firstName, lastName, alias, password, userImageBytes);
         console.log(response);
         return response;
     };
 
     public async logout(authToken: AuthToken): Promise<void> {
         // Pause so we can see the logging out message. Delete when the call to the server is implemented.
-        await new Promise((res) => setTimeout(res, 1000));
+        // await new Promise((res) => setTimeout(res, 1000));
+        return await this.getAuthTokenDAO().logout(authToken);
     };
 
     public async getUser(
@@ -51,6 +41,6 @@ export class UserService {
         alias: string
     ): Promise<User | null> {
 
-        return await this.userDAO.getUser(alias);
+        return await this.getUserDAO().getUser(alias);
     };
 }

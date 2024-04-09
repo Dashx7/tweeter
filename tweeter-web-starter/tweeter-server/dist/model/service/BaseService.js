@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BaseService = void 0;
-//Has all the DAOS
 const DAOFactories_1 = require("../../DAOs/DAOFactories");
 //public DAO
 class BaseService {

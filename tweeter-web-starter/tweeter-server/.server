@@ -1,4 +1,4 @@
-LAMBDALAYER_ARN='arn:aws:lambda:us-east-1:532311244571:layer:GoodTweeterLayer:17'
+LAMBDALAYER_ARN='arn:aws:lambda:us-east-1:532311244571:layer:GoodTweeterLayer:18'
 BUCKET='joshwiseman340'
 REGION='us-east-1'
 EDIT_LAMBDALIST='
