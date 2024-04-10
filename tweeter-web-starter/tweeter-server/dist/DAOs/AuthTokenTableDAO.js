@@ -65,6 +65,9 @@ class AuthTokenTableDAO {
     }
     login(aliasToUse, password) {
         return __awaiter(this, void 0, void 0, function* () {
+            if (aliasToUse[0] != '@') {
+                aliasToUse = '@' + aliasToUse;
+            }
             const params = {
                 TableName: this.usersTableName,
                 Key: {

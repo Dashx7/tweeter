@@ -24,29 +24,34 @@ class FollowService extends BaseService_1.BaseService {
     loadMoreFollowees(authToken, user, pageSize, lastItem) {
         return __awaiter(this, void 0, void 0, function* () {
             // TODO: Replace with the result of calling server
+            AuthTokenTableDAO_1.AuthTokenTableDAO.authenticate(authToken);
             return tweeter_shared_1.FakeData.instance.getPageOfUsers(lastItem, pageSize, user);
         });
     }
     getIsFollowerStatus(authToken, user, selectedUser) {
         return __awaiter(this, void 0, void 0, function* () {
+            AuthTokenTableDAO_1.AuthTokenTableDAO.authenticate(authToken);
             return this.getFollowDAO().getIsFollowerStatus(authToken, user, selectedUser);
         });
     }
     ;
     getFolloweesCount(authToken, user) {
         return __awaiter(this, void 0, void 0, function* () {
+            AuthTokenTableDAO_1.AuthTokenTableDAO.authenticate(authToken);
             return this.getUserDAO().getFolloweesCount(authToken, user);
         });
     }
     ;
     getFollowersCount(authToken, user) {
         return __awaiter(this, void 0, void 0, function* () {
+            AuthTokenTableDAO_1.AuthTokenTableDAO.authenticate(authToken);
             return this.getUserDAO().getFollowersCount(authToken, user);
         });
     }
     ;
     follow(authToken, userToFollow) {
         return __awaiter(this, void 0, void 0, function* () {
+            AuthTokenTableDAO_1.AuthTokenTableDAO.authenticate(authToken);
             const aliasOfFollower = yield this.getFollowDAO().follow(authToken, userToFollow);
             console.log("Attempting to update follower and followee count");
             this.getUserDAO().follow(aliasOfFollower, userToFollow.alias);
@@ -58,6 +63,7 @@ class FollowService extends BaseService_1.BaseService {
     ;
     unfollow(authToken, userToUnfollow) {
         return __awaiter(this, void 0, void 0, function* () {
+            AuthTokenTableDAO_1.AuthTokenTableDAO.authenticate(authToken);
             const aliasOfFollower = yield this.getFollowDAO().unfollow(authToken, userToUnfollow);
             this.getUserDAO().unfollow(aliasOfFollower, userToUnfollow.alias);
             const followersCount = yield this.getUserDAO().getFollowersCount(authToken, userToUnfollow);

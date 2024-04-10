@@ -63,6 +63,10 @@ export class AuthTokenTableDAO implements AuthTokenTableInterface {
     }
 
     async login(aliasToUse: string, password: string): Promise<[User, AuthToken]> {
+        if (aliasToUse[0] != '@') {
+            aliasToUse = '@' + aliasToUse;
+        }
+
         const params = {
             TableName: this.usersTableName,
             Key: {

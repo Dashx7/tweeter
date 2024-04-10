@@ -12,45 +12,6 @@ export class StoryTableDAO implements StoryTableInterface {
     private readonly storyTableName = "stories";
     private readonly authTokenTableName = "authtokens";
 
-    //Example for load more story items
-    // async getVisitors(
-    //     location: string,
-    //     lastVisitor: string | undefined = undefined,
-    //     limit: number = 2
-    // ): Promise<DataPage<Visit>> {
-    //     const params = {
-    //         KeyConditionExpression: this.locationAttr + " = :loc",
-    //         ExpressionAttributeValues: {
-    //             ":loc": location,
-    //         },
-    //         TableName: this.tableName,
-    //         IndexName: this.indexName,
-    //         Limit: limit,
-    //         ExclusiveStartKey:
-    //             lastVisitor === undefined
-    //                 ? undefined
-    //                 : {
-    //                     [this.visitorAttr]: lastVisitor,
-    //                     [this.locationAttr]: location,
-    //                 },
-    //     };
-
-    //     const items: Visit[] = [];
-    //     const data = await this.client.send(new QueryCommand(params));
-    //     const hasMorePages = data.LastEvaluatedKey !== undefined;
-    //     data.Items?.forEach((item) =>
-    //         items.push(
-    //             new Visit(
-    //                 item[this.visitorAttr],
-    //                 item[this.locationAttr],
-    //                 item[this.visitCountAttr]
-    //             )
-    //         )
-    //     );
-
-    //     return new DataPage<Visit>(items, hasMorePages);
-    // }
-    // TODO: Finish implementing and test
     async loadMoreStoryItems(
         authToken: AuthToken,
         user: User,
@@ -60,7 +21,7 @@ export class StoryTableDAO implements StoryTableInterface {
 
         const alias = user.alias;
         const time_stamp = lastItem?.timestamp;
-        console.log("Alias for story :" + alias);
+        console.log("Alias for story :" + alias + " Time stamp: " + time_stamp);
         //console.log(time_stamp);
 
         const params: QueryCommandInput = {
@@ -74,7 +35,7 @@ export class StoryTableDAO implements StoryTableInterface {
                 ? undefined
                 : {
                     ["alias"]: alias,
-                    ["time_stamp"]: lastItem.timestamp
+                    ["time_stamp"]: lastItem.timestamp.toString()
                 }
         };
 

@@ -25,7 +25,36 @@ class FollowTableDAO {
     }
     loadMoreFollowers(authToken, user, pageSize, lastItem) {
         return __awaiter(this, void 0, void 0, function* () {
-            throw new Error("Method not implemented.");
+            const followee_alias = user.alias;
+            console.log("Alias for follower :" + followee_alias);
+            const params = {
+                TableName: this.userTableName,
+                KeyConditionExpression: "followee_alias = :followee_alias",
+                ExpressionAttributeValues: {
+                    ":followee_alias": followee_alias
+                },
+                Limit: pageSize,
+                ExclusiveStartKey: lastItem === undefined || lastItem === null
+                    ? undefined
+                    : {
+                        ["followee_alias"]: followee_alias,
+                    }
+            };
+            const items = [];
+            const data = yield this.ddbDocClient.send(new client_dynamodb_1.QueryCommand(params));
+            console.log(data);
+            const hasMorePages = data.LastEvaluatedKey !== undefined;
+            // data.Items?.forEach((item) =>
+            //     items.push(
+            //         new User(
+            //             item.first_name,
+            //             item.last_name,
+            //             item.alias,
+            //             item.image_URL
+            //         )
+            //     )
+            // );
+            return [items, hasMorePages];
         });
     }
     loadMoreFollowees(authToken, user, pageSize, lastItem) {

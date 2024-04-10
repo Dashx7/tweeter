@@ -29,7 +29,38 @@ export class FollowTableDAO implements FollowTableDAOInterface {
         lastItem: User | null
     ): Promise<[User[], boolean]> {
 
-        throw new Error("Method not implemented.");
+        const followee_alias = user.alias;
+        console.log("Alias for follower :" + followee_alias);
+
+        const params: QueryCommandInput = {
+            TableName: this.userTableName,
+            KeyConditionExpression: "followee_alias = :followee_alias",
+            ExpressionAttributeValues: {
+                ":followee_alias": followee_alias
+            },
+            Limit: pageSize,
+            ExclusiveStartKey: lastItem === undefined || lastItem === null
+                ? undefined
+                : {
+                    ["followee_alias"]: followee_alias,
+                }
+        };
+
+        const items: User[] = [];
+        const data = await this.ddbDocClient.send(new QueryCommand(params));
+        console.log(data);
+        const hasMorePages = data.LastEvaluatedKey !== undefined;
+        // data.Items?.forEach((item) =>
+        //     items.push(
+        //         new User(
+        //             item.first_name,
+        //             item.last_name,
+        //             item.alias,
+        //             item.image_URL
+        //         )
+        //     )
+        // );
+        return [items, hasMorePages];
     }
 
     async loadMoreFollowees(

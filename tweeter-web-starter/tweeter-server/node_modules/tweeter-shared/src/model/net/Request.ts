@@ -50,6 +50,25 @@ export class GetUserRequest extends TweeterRequest {
         this.authToken = authToken;
         this.alias = alias;
     }
+
+    static fromJson(getUserRequest: GetUserRequest): GetUserRequest {
+        interface GetUserRequestJson {
+            authToken: AuthToken;
+            alias: string;
+        }
+        const jsonObject: GetUserRequestJson = getUserRequest as unknown as GetUserRequestJson;
+        let deserializedAuthToken = AuthToken.fromJson(JSON.stringify(jsonObject.authToken));
+        if (deserializedAuthToken === null) {
+            throw new Error(
+                "GetUserRequest, could not deserialize authToken with json:\n" +
+                JSON.stringify(jsonObject.authToken)
+            );
+        }
+        return new GetUserRequest(
+            deserializedAuthToken,
+            jsonObject.alias
+        );
+    }
 }
 
 export class LoadMoreStatusItemsRequest extends TweeterRequest {
