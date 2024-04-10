@@ -21,23 +21,23 @@ export abstract class FollowTableDAOInterface {
         selectedUser: User
     ): Promise<boolean>;
 
-    abstract getFolloweesCount(
-        authToken: AuthToken,
-        user: User
-    ): Promise<number>;
+    // abstract getFolloweesCount(
+    //     authToken: AuthToken,
+    //     user: User
+    // ): Promise<number>;
 
-    abstract getFollowersCount(
-        authToken: AuthToken,
-        user: User
-    ): Promise<number>;
+    // abstract getFollowersCount(
+    //     authToken: AuthToken,
+    //     user: User
+    // ): Promise<number>;
 
     abstract follow(
         authToken: AuthToken,
         userToFollow: User
-    ): Promise<[number, number]>;
+    ): Promise<String>;
 
     abstract unfollow(
         authToken: AuthToken,
         userToUnfollow: User
-    ): Promise<[number, number]>;
+    ): Promise<String>;
 }

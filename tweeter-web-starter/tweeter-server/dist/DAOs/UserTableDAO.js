@@ -18,6 +18,7 @@ class UserTableDAO {
     constructor() {
         this.client = new client_dynamodb_1.DynamoDBClient({ region: "us-east-1" });
         this.tableName = "users";
+        this.ddbDocClient = lib_dynamodb_1.DynamoDBDocumentClient.from(this.client);
     }
     getUser(alias) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -38,6 +39,102 @@ class UserTableDAO {
             // Convert the response.Item into a User object
             let user = new tweeter_shared_1.User(response.Item.first_name, response.Item.last_name, response.Item.alias, response.Item.image_URL);
             return user;
+        });
+    }
+    follow(aliasOfFollower, aliasOfFollowee) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const params = {
+                TableName: this.tableName,
+                Key: {
+                    alias: aliasOfFollower
+                },
+                ExpressionAttributeValues: {
+                    ":inc": 1
+                },
+                UpdateExpression: "SET followee_count = followee_count + :inc",
+            };
+            const response = yield this.ddbDocClient.send(new lib_dynamodb_1.UpdateCommand(params));
+            console.log(response);
+            const params2 = {
+                TableName: this.tableName,
+                Key: {
+                    alias: aliasOfFollowee
+                },
+                ExpressionAttributeValues: {
+                    ":inc": 1
+                },
+                UpdateExpression: "SET follower_count = follower_count + :inc",
+            };
+            const response2 = yield this.ddbDocClient.send(new lib_dynamodb_1.UpdateCommand(params2));
+            console.log(response2);
+            return;
+        });
+    }
+    unfollow(aliasOfFollower, aliasOfFollowee) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const params = {
+                TableName: this.tableName,
+                Key: {
+                    alias: aliasOfFollower
+                },
+                ExpressionAttributeValues: {
+                    ":inc": -1
+                },
+                UpdateExpression: "ADD followee_count :val"
+            };
+            const response = yield this.ddbDocClient.send(new lib_dynamodb_1.UpdateCommand(params));
+            console.log(response);
+            const params2 = {
+                TableName: this.tableName,
+                Key: {
+                    alias: aliasOfFollowee
+                },
+                ExpressionAttributeValues: {
+                    ":inc": -1
+                },
+                UpdateExpression: "ADD follower_count :val"
+            };
+            const response2 = yield this.ddbDocClient.send(new lib_dynamodb_1.UpdateCommand(params2));
+            console.log(response2);
+            return;
+        });
+    }
+    getFolloweesCount(authToken, user) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            const aliasToUse = user.alias;
+            console.log("Alias to use: " + aliasToUse);
+            const params = {
+                TableName: this.tableName,
+                Key: {
+                    alias: aliasToUse
+                }
+            };
+            const response = yield this.client.send(new lib_dynamodb_1.GetCommand(params));
+            console.log(response);
+            if (!response.Item) {
+                throw new Error(`User with alias ${aliasToUse} not found`);
+            }
+            return (_a = response.Item) === null || _a === void 0 ? void 0 : _a.followee_count;
+        });
+    }
+    getFollowersCount(authToken, user) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            const aliasToUse = user.alias;
+            console.log("Alias to use: " + aliasToUse);
+            const params = {
+                TableName: this.tableName,
+                Key: {
+                    'alias': aliasToUse,
+                },
+            };
+            const response = yield this.client.send(new lib_dynamodb_1.GetCommand(params));
+            console.log(response);
+            if (!response.Item) {
+                throw new Error(`User with alias ${aliasToUse} not found`);
+            }
+            return (_a = response.Item) === null || _a === void 0 ? void 0 : _a.follower_count;
         });
     }
 }

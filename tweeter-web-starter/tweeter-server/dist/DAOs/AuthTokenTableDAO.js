@@ -123,7 +123,6 @@ class AuthTokenTableDAO {
     // Todo: Test
     logout(authToken) {
         return __awaiter(this, void 0, void 0, function* () {
-            AuthTokenTableDAO.authenticate(authToken);
             const params = {
                 TableName: this.AuthTokenTableName,
                 Key: {
@@ -199,8 +198,6 @@ class AuthTokenTableDAO {
             }
             console.log("Alias is available");
             const password_hashed = yield bcryptjs_1.default.hash(password, 1);
-            let follower_count = 0;
-            let followee_count = 0;
             //Image section
             if (userImageBytes === null) {
                 throw new Error("User image is null");
@@ -224,8 +221,8 @@ class AuthTokenTableDAO {
                     first_name: firstName,
                     last_name: lastName,
                     image_URL: image_URL,
-                    follower_count: follower_count,
-                    followee_count: followee_count
+                    follower_count: 0,
+                    followee_count: 0
                 }
             };
             yield this.client.send(new lib_dynamodb_1.PutCommand(params));

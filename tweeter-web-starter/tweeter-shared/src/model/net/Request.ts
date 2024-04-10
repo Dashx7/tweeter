@@ -214,17 +214,17 @@ export class FollowerOperationsRequest extends TweeterRequest {
             authToken: AuthToken;
             user: User;
         }
-        console.log("FollowerOperationsRequest.fromJson: json: " + JSON.stringify(followerOperationRequest));
+        // console.log("FollowerOperationsRequest.fromJson: json: " + JSON.stringify(followerOperationRequest));
 
         const jsonObject: FollowerOperationsRequestJson =
             followerOperationRequest as unknown as FollowerOperationsRequestJson;
 
-        console.log("FollowerOperationsRequest.fromJson: jsonObject: " + JSON.stringify(jsonObject));
+        // console.log("FollowerOperationsRequest.fromJson: jsonObject: " + JSON.stringify(jsonObject));
 
         let deserializedAuthToken = AuthToken.fromJson(JSON.stringify(jsonObject.authToken));
         let deserializedUser = User.fromJson(JSON.stringify(jsonObject.user));
-        console.log("FollowerOperationsRequest.fromJson: deserializedAuthToken: " + JSON.stringify(deserializedAuthToken));
-        console.log("FollowerOperationsRequest.fromJson: deserializedUser: " + JSON.stringify(deserializedUser));
+        // console.log("FollowerOperationsRequest.fromJson: deserializedAuthToken: " + JSON.stringify(deserializedAuthToken));
+        // console.log("FollowerOperationsRequest.fromJson: deserializedUser: " + JSON.stringify(deserializedUser));
 
         if (deserializedAuthToken === null) {
             throw new Error(

@@ -10,7 +10,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FeedTableDAO = void 0;
-const AuthTokenTableDAO_1 = require("./AuthTokenTableDAO");
 //Feed table will have the key alias, and associate those with status of their friends sorted by timestamp (post, user, timestamp, segment)
 class FeedTableDAO {
     constructor() {
@@ -18,15 +17,11 @@ class FeedTableDAO {
     }
     loadMoreFeedItems(authToken, user, pageSize, lastItem) {
         return __awaiter(this, void 0, void 0, function* () {
-            // Replace with actual implementation
-            AuthTokenTableDAO_1.AuthTokenTableDAO.authenticate(authToken);
             return [[], false];
         });
     }
     postStatus(authToken, status) {
         return __awaiter(this, void 0, void 0, function* () {
-            // Replace with actual implementation
-            AuthTokenTableDAO_1.AuthTokenTableDAO.authenticate(authToken);
             return;
             // First query request of all followers of alias
             // For each follower Put request their alias and then the status

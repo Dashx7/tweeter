@@ -128,7 +128,6 @@ export class AuthTokenTableDAO implements AuthTokenTableInterface {
 
     // Todo: Test
     async logout(authToken: AuthToken): Promise<void> {
-        AuthTokenTableDAO.authenticate(authToken);
         const params = {
             TableName: this.AuthTokenTableName,
             Key: {
@@ -219,8 +218,6 @@ export class AuthTokenTableDAO implements AuthTokenTableInterface {
         console.log("Alias is available");
 
         const password_hashed = await bcrypt.hash(password, 1);
-        let follower_count = 0;
-        let followee_count = 0;
 
         //Image section
         if (userImageBytes === null) {
@@ -250,8 +247,8 @@ export class AuthTokenTableDAO implements AuthTokenTableInterface {
                 first_name: firstName,
                 last_name: lastName,
                 image_URL: image_URL,
-                follower_count: follower_count,
-                followee_count: followee_count
+                follower_count: 0,
+                followee_count: 0
             }
         };
         await this.client.send(new PutCommand(params));

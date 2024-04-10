@@ -21,30 +21,21 @@ class FollowTableDAO {
         this.client = new client_dynamodb_1.DynamoDBClient({ region: "us-east-1" });
         this.followTableName = "follows";
         this.userTableName = "users";
-        this.followeeName = "followee_name";
-        this.followeeHandle = "followee_handle";
-        this.followerName = "follower_name";
-        this.followerHandle = "follower_handle";
+        this.ddbDocClient = lib_dynamodb_1.DynamoDBDocumentClient.from(this.client);
     }
     loadMoreFollowers(authToken, user, pageSize, lastItem) {
         return __awaiter(this, void 0, void 0, function* () {
-            // TODO: Implement this method
-            AuthTokenTableDAO_1.AuthTokenTableDAO.authenticate(authToken);
             throw new Error("Method not implemented.");
         });
     }
     loadMoreFollowees(authToken, user, pageSize, lastItem) {
         return __awaiter(this, void 0, void 0, function* () {
-            // TODO: Implement this method
-            AuthTokenTableDAO_1.AuthTokenTableDAO.authenticate(authToken);
             throw new Error("Method not implemented.");
         });
     }
     //About to test
     getIsFollowerStatus(authToken, user, selectedUser) {
         return __awaiter(this, void 0, void 0, function* () {
-            // TODO: Implement this method
-            AuthTokenTableDAO_1.AuthTokenTableDAO.authenticate(authToken);
             // Retrieve follower information
             const followerAlias = user.alias;
             const followedAlias = selectedUser.alias;
@@ -62,109 +53,118 @@ class FollowTableDAO {
             return response.Items && response.Items.length > 0 ? true : false;
         });
     }
-    getFolloweesCount(authToken, user) {
-        return __awaiter(this, void 0, void 0, function* () {
-            AuthTokenTableDAO_1.AuthTokenTableDAO.authenticate(authToken);
-            console.log("User: " + JSON.stringify(user));
-            const aliasToUse = user.alias;
-            console.log("Alias to use: " + aliasToUse);
-            const params = {
-                TableName: this.userTableName,
-                Key: {
-                    'alias': aliasToUse,
-                },
-            };
-            console.log("Attempting to get followee count of " + aliasToUse);
-            const output = yield this.client.send(new lib_dynamodb_1.GetCommand(params));
-            if (!output.Item || !output.Item.followee_count || !output.Item.followee_count.N) {
-                return 0;
-            }
-            console.log("Output count :" + output.Item.followee_count.N);
-            return Number(output.Item.followee_count.N);
-        });
-    }
-    getFollowersCount(authToken, user) {
-        return __awaiter(this, void 0, void 0, function* () {
-            AuthTokenTableDAO_1.AuthTokenTableDAO.authenticate(authToken);
-            console.log("User: " + JSON.stringify(user));
-            const aliasToUse = user.alias;
-            console.log("Alias to use: " + aliasToUse);
-            const params = {
-                TableName: this.userTableName,
-                Key: {
-                    'alias': aliasToUse,
-                },
-            };
-            console.log("Attempting to get follower count of " + aliasToUse);
-            const output = yield this.client.send(new lib_dynamodb_1.GetCommand(params));
-            if (!output.Item || !output.Item.follower_count || !output.Item.follower_count.N) {
-                return 0;
-            }
-            console.log("Output count :" + output.Item.follower_count.N);
-            return Number(output.Item.follower_count.N);
-        });
-    }
-    //Might work
+    // async getFolloweesCount(
+    //     authToken: AuthToken,
+    //     user: User
+    // ): Promise<number> {
+    //     // console.log("User: " + JSON.stringify(user));
+    //     const aliasToUse: string = user.alias;
+    //     console.log("Alias to use: " + aliasToUse);
+    //     // const params = {
+    //     //     TableName: this.userTableName,
+    //     //     Key: {
+    //     //         'alias': aliasToUse,
+    //     //     },
+    //     // };
+    //     // console.log("Attempting to get followee count of " + aliasToUse);
+    //     // const output = await this.ddbDocClient.send(new GetCommand(params));
+    //     // console.log("Output: " + JSON.stringify(output));
+    //     // if (output.Item === undefined) {
+    //     //     console.log("Output is undefined");
+    //     //     return -1;
+    //     // }
+    //     // console.log("Output count :" + output.Item.followee_count.N);
+    //     // if (!output.Item || !output.Item.followee_count || !output.Item.followee_count.N) {
+    //     //     return 0;
+    //     // }
+    //     // return Number(output.Item.followee_count.N);
+    // }
+    // async getFollowersCount(
+    //     authToken: AuthToken,
+    //     user: User
+    // ): Promise<number> {
+    //     AuthTokenTableDAO.authenticate(authToken);
+    //     // console.log("User: " + JSON.stringify(user));
+    //     const aliasToUse: string = user.alias;
+    //     // console.log("Alias to use: " + aliasToUse);
+    //     const params = {
+    //         TableName: this.userTableName,
+    //         Key: {
+    //             'alias': aliasToUse,
+    //         },
+    //     };
+    //     console.log("Attempting to get follower count of " + aliasToUse);
+    //     const output = await this.ddbDocClient.send(new GetCommand(params));
+    //     console.log("Output: " + JSON.stringify(output));
+    //     if (output.Item === undefined) {
+    //         console.log("Output is undefined");
+    //         return -1;
+    //     }
+    //     console.log("Output count :" + output.Item.follower_count.N);
+    //     if (!output.Item || !output.Item.follower_count || !output.Item.follower_count.N) {
+    //         return 0;
+    //     }
+    //     return Number(output.Item.follower_count.N);
+    // }
+    // async getFolloweesCountByQuery(
+    //     authToken: AuthToken,
+    //     user: User
+    // ): Promise<number> {
+    //     AuthTokenTableDAO.authenticate(authToken);
+    //     console.log("User: " + JSON.stringify(user));
+    //     const aliasToUse: string = user.alias;
+    //     console.log("Alias to use: " + aliasToUse);
+    //     const params = {
+    //         TableName: this.userTableName,
+    //         Key: {
+    //             'alias': aliasToUse,
+    //         },
+    //     };
+    //     console.log("Attempting to get followee count of " + aliasToUse);
+    //     const output = await this.client.send(new GetCommand(params));
+    //     if (!output.Item || !output.Item.followee_count || !output.Item.followee_count.N) {
+    //         return 0;
+    //     }
+    //     console.log("Output count :" + output.Item.followee_count.N);
+    //     return Number(output.Item.followee_count.N);
+    // }
+    //Need to update count in users table
     follow(authToken, userToFollow) {
         return __awaiter(this, void 0, void 0, function* () {
-            AuthTokenTableDAO_1.AuthTokenTableDAO.authenticate(authToken);
             // Extract user information
             const followeeAlias = userToFollow.alias; // Assuming alias is the user's identifier
             const originalUser = yield AuthTokenTableDAO_1.AuthTokenTableDAO.findUserByAuthToken(authToken);
             const followerAlias = originalUser.alias;
+            console.log("Follower alias: " + followerAlias + " Followee alias: " + followeeAlias);
             const params = {
-                TableName: 'Follows',
+                TableName: this.followTableName,
                 Item: {
-                    follower_alias: { S: followerAlias },
-                    followee_alias: { S: followeeAlias }
+                    follower_alias: followerAlias,
+                    followee_alias: followeeAlias
                 }
             };
-            try {
-                const response = yield this.client.send(new client_dynamodb_1.PutItemCommand(params));
-                if (response.$metadata.httpStatusCode !== 200) {
-                    throw new Error("Error following user: " + response.$metadata.httpStatusCode);
-                }
-                //Get the updated follower and followee counts by calling the getFollowersCount and getFolloweesCount methods with the orginal user
-                const followerCount = yield this.getFollowersCount(authToken, originalUser);
-                const followingCount = yield this.getFolloweesCount(authToken, originalUser);
-                return [followerCount, followingCount];
-            }
-            catch (error) {
-                console.error("Error following user:", error);
-                throw error;
-            }
+            const response = yield this.ddbDocClient.send(new lib_dynamodb_1.PutCommand(params));
+            console.log(response);
+            return followerAlias;
         });
     }
-    // Probably doesn't work
     unfollow(authToken, userToUnfollow) {
         return __awaiter(this, void 0, void 0, function* () {
-            AuthTokenTableDAO_1.AuthTokenTableDAO.authenticate(authToken);
             // Extract user information
-            const followerAlias = userToUnfollow.alias;
-            // Define update parameters
+            const followeeAlias = userToUnfollow.alias; // Assuming alias is the user's identifier
+            const originalUser = yield AuthTokenTableDAO_1.AuthTokenTableDAO.findUserByAuthToken(authToken);
+            const followerAlias = originalUser.alias;
+            console.log("Follower alias: " + followerAlias + " Followee alias: " + followeeAlias);
             const params = {
-                TableName: 'Users',
+                TableName: this.followTableName,
                 Key: {
-                    id: { S: followerAlias } // Update user with the matching alias
-                },
-                UpdateExpression: 'SET following = list_delete(following, :followerAlias)',
-                ExpressionAttributeValues: {
-                    ':followerAlias': { S: followerAlias }
-                },
-                ReturnValues: 'UPDATED_NEW' // Return updated follower count
+                    follower_alias: followerAlias,
+                    followee_alias: followeeAlias
+                }
             };
-            try {
-                const response = yield this.client.send(new client_dynamodb_1.UpdateItemCommand(params));
-                // Get the updated follower and followee counts
-                const originalUser = yield AuthTokenTableDAO_1.AuthTokenTableDAO.findUserByAuthToken(authToken);
-                const followerCount = yield this.getFollowersCount(authToken, originalUser);
-                const followingCount = yield this.getFolloweesCount(authToken, originalUser);
-                return [followerCount, followingCount];
-            }
-            catch (error) {
-                console.error("Error unfollowing user:", error);
-                throw error; // Re-throw for proper error handling
-            }
+            const response = yield this.ddbDocClient.send(new lib_dynamodb_1.DeleteCommand(params));
+            console.log(response);
+            return followerAlias;
         });
     }
 }

@@ -12,10 +12,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserService = void 0;
 const tweeter_shared_1 = require("tweeter-shared");
 const BaseService_1 = require("./BaseService");
+const AuthTokenTableDAO_1 = require("../../DAOs/AuthTokenTableDAO");
 class UserService extends BaseService_1.BaseService {
     login(alias, password) {
         return __awaiter(this, void 0, void 0, function* () {
-            // TODO: Replace with the result of calling the server
             let user = tweeter_shared_1.FakeData.instance.firstUser;
             if (user === null) {
                 throw new Error("Invalid alias or password");
@@ -35,14 +35,13 @@ class UserService extends BaseService_1.BaseService {
     ;
     logout(authToken) {
         return __awaiter(this, void 0, void 0, function* () {
-            // Pause so we can see the logging out message. Delete when the call to the server is implemented.
-            // await new Promise((res) => setTimeout(res, 1000));
             return yield this.getAuthTokenDAO().logout(authToken);
         });
     }
     ;
     getUser(authToken, alias) {
         return __awaiter(this, void 0, void 0, function* () {
+            AuthTokenTableDAO_1.AuthTokenTableDAO.authenticate(authToken);
             return yield this.getUserDAO().getUser(alias);
         });
     }

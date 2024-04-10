@@ -12,10 +12,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.FollowService = void 0;
 const tweeter_shared_1 = require("tweeter-shared");
 const BaseService_1 = require("./BaseService");
+const AuthTokenTableDAO_1 = require("../../DAOs/AuthTokenTableDAO");
 class FollowService extends BaseService_1.BaseService {
     loadMoreFollowers(authToken, user, pageSize, lastItem) {
         return __awaiter(this, void 0, void 0, function* () {
             // TODO: Replace with the result of calling server
+            AuthTokenTableDAO_1.AuthTokenTableDAO.authenticate(authToken);
             return tweeter_shared_1.FakeData.instance.getPageOfUsers(lastItem, pageSize, user);
         });
     }
@@ -33,30 +35,33 @@ class FollowService extends BaseService_1.BaseService {
     ;
     getFolloweesCount(authToken, user) {
         return __awaiter(this, void 0, void 0, function* () {
-            return this.getFollowDAO().getFolloweesCount(authToken, user);
+            return this.getUserDAO().getFolloweesCount(authToken, user);
         });
     }
     ;
     getFollowersCount(authToken, user) {
         return __awaiter(this, void 0, void 0, function* () {
-            return this.getFollowDAO().getFollowersCount(authToken, user);
+            return this.getUserDAO().getFollowersCount(authToken, user);
         });
     }
     ;
     follow(authToken, userToFollow) {
         return __awaiter(this, void 0, void 0, function* () {
-            this.getFollowDAO().follow(authToken, userToFollow);
-            let followersCount = yield this.getFollowersCount(authToken, userToFollow);
-            let followeesCount = yield this.getFolloweesCount(authToken, userToFollow);
+            const aliasOfFollower = yield this.getFollowDAO().follow(authToken, userToFollow);
+            console.log("Attempting to update follower and followee count");
+            this.getUserDAO().follow(aliasOfFollower, userToFollow.alias);
+            const followersCount = yield this.getUserDAO().getFollowersCount(authToken, userToFollow);
+            const followeesCount = yield this.getUserDAO().getFolloweesCount(authToken, userToFollow);
             return [followersCount, followeesCount];
         });
     }
     ;
     unfollow(authToken, userToUnfollow) {
         return __awaiter(this, void 0, void 0, function* () {
-            this.getFollowDAO().unfollow(authToken, userToUnfollow);
-            let followersCount = yield this.getFollowersCount(authToken, userToUnfollow);
-            let followeesCount = yield this.getFolloweesCount(authToken, userToUnfollow);
+            const aliasOfFollower = yield this.getFollowDAO().unfollow(authToken, userToUnfollow);
+            this.getUserDAO().unfollow(aliasOfFollower, userToUnfollow.alias);
+            const followersCount = yield this.getUserDAO().getFollowersCount(authToken, userToUnfollow);
+            const followeesCount = yield this.getUserDAO().getFolloweesCount(authToken, userToUnfollow);
             return [followersCount, followeesCount];
         });
     }

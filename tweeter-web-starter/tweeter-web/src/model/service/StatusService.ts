@@ -1,5 +1,5 @@
-import {AuthToken, User, Status, FakeData, LoadMoreStatusItemsRequest, PostStatusRequest} from "tweeter-shared";
-import {ServerFacade} from "../../net/ServerFacade";
+import { AuthToken, User, Status, FakeData, LoadMoreStatusItemsRequest, PostStatusRequest } from "tweeter-shared";
+import { ServerFacade } from "../../net/ServerFacade";
 
 export class StatusService {
     public async loadMoreFeedItems(
@@ -19,6 +19,7 @@ export class StatusService {
         lastItem: Status | null
     ): Promise<[Status[], boolean]> {
         const respose = await new ServerFacade().loadMoreStoryItems(new LoadMoreStatusItemsRequest(authToken, user, pageSize, lastItem));
+        console.log("Got back response in status service :" + respose.newItems);
         return [respose.newItems, respose.hasMore];
     }
 

@@ -1,5 +1,6 @@
 import { AuthToken, User, FakeData } from "tweeter-shared";
 import { BaseService } from "./BaseService";
+import { AuthTokenTableDAO } from "../../DAOs/AuthTokenTableDAO";
 
 export class FollowService extends BaseService {
     public async loadMoreFollowers(
@@ -9,6 +10,7 @@ export class FollowService extends BaseService {
         lastItem: User | null
     ): Promise<[User[], boolean]> {
         // TODO: Replace with the result of calling server
+        AuthTokenTableDAO.authenticate(authToken);
         return FakeData.instance.getPageOfUsers(lastItem, pageSize, user);
     }
 
@@ -19,6 +21,7 @@ export class FollowService extends BaseService {
         lastItem: User | null
     ): Promise<[User[], boolean]> {
         // TODO: Replace with the result of calling server
+        AuthTokenTableDAO.authenticate(authToken);
         return FakeData.instance.getPageOfUsers(lastItem, pageSize, user);
     }
 
@@ -27,7 +30,7 @@ export class FollowService extends BaseService {
         user: User,
         selectedUser: User
     ): Promise<boolean> {
-
+        AuthTokenTableDAO.authenticate(authToken);
         return this.getFollowDAO().getIsFollowerStatus(authToken, user, selectedUser);
     };
 
@@ -35,27 +38,29 @@ export class FollowService extends BaseService {
         authToken: AuthToken,
         user: User
     ): Promise<number> {
-
-        return this.getFollowDAO().getFolloweesCount(authToken, user);
+        AuthTokenTableDAO.authenticate(authToken);
+        return this.getUserDAO().getFolloweesCount(authToken, user);
     };
 
     public async getFollowersCount(
         authToken: AuthToken,
         user: User
     ): Promise<number> {
-
-        return this.getFollowDAO().getFollowersCount(authToken, user);
+        AuthTokenTableDAO.authenticate(authToken);
+        return this.getUserDAO().getFollowersCount(authToken, user);
     };
 
     public async follow(
         authToken: AuthToken,
         userToFollow: User
     ): Promise<[followersCount: number, followeesCount: number]> {
+        AuthTokenTableDAO.authenticate(authToken);
 
-        this.getFollowDAO().follow(authToken, userToFollow);
-
-        let followersCount = await this.getFollowersCount(authToken, userToFollow);
-        let followeesCount = await this.getFolloweesCount(authToken, userToFollow);
+        const aliasOfFollower = await this.getFollowDAO().follow(authToken, userToFollow);
+        console.log("Attempting to update follower and followee count");
+        this.getUserDAO().follow(aliasOfFollower, userToFollow.alias);
+        const followersCount = await this.getUserDAO().getFollowersCount(authToken, userToFollow);
+        const followeesCount = await this.getUserDAO().getFolloweesCount(authToken, userToFollow);
 
         return [followersCount, followeesCount];
     };
@@ -64,11 +69,12 @@ export class FollowService extends BaseService {
         authToken: AuthToken,
         userToUnfollow: User
     ): Promise<[followersCount: number, followeesCount: number]> {
+        AuthTokenTableDAO.authenticate(authToken);
 
-        this.getFollowDAO().unfollow(authToken, userToUnfollow);
-
-        let followersCount = await this.getFollowersCount(authToken, userToUnfollow);
-        let followeesCount = await this.getFolloweesCount(authToken, userToUnfollow);
+        const aliasOfFollower = await this.getFollowDAO().unfollow(authToken, userToUnfollow);
+        this.getUserDAO().unfollow(aliasOfFollower, userToUnfollow.alias);
+        const followersCount = await this.getUserDAO().getFollowersCount(authToken, userToUnfollow);
+        const followeesCount = await this.getUserDAO().getFolloweesCount(authToken, userToUnfollow);
 
         return [followersCount, followeesCount];
     };

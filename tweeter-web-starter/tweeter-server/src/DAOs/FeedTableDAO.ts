@@ -12,8 +12,7 @@ export class FeedTableDAO implements FeedTableInterface {
         pageSize: number,
         lastItem: Status | null
     ): Promise<[Status[], boolean]> {
-        // Replace with actual implementation
-        AuthTokenTableDAO.authenticate(authToken);
+
         return [[], false];
     }
 
@@ -21,8 +20,7 @@ export class FeedTableDAO implements FeedTableInterface {
         authToken: AuthToken,
         status: Status
     ): Promise<void> {
-        // Replace with actual implementation
-        AuthTokenTableDAO.authenticate(authToken);
+
         return;
         // First query request of all followers of alias
         // For each follower Put request their alias and then the status
