@@ -10,22 +10,45 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FollowService = void 0;
-const tweeter_shared_1 = require("tweeter-shared");
 const BaseService_1 = require("./BaseService");
 const AuthTokenTableDAO_1 = require("../../DAOs/AuthTokenTableDAO");
 class FollowService extends BaseService_1.BaseService {
     loadMoreFollowers(authToken, user, pageSize, lastItem) {
         return __awaiter(this, void 0, void 0, function* () {
-            // TODO: Replace with the result of calling server
             AuthTokenTableDAO_1.AuthTokenTableDAO.authenticate(authToken);
-            return tweeter_shared_1.FakeData.instance.getPageOfUsers(lastItem, pageSize, user);
+            const response = yield this.getFollowDAO().loadMoreFollowers(authToken, user, pageSize, lastItem);
+            console.log("Response from loadMoreFollowers: " + response.toString());
+            const stringList = response[0];
+            if (stringList.length == 0) {
+                console.log("No users found in loadMoreFollowers");
+                return [[], false];
+            }
+            const userList = [];
+            for (let i = 0; i < stringList.length; i++) {
+                const user = yield this.getUserDAO().getUser(stringList[i]);
+                console.log("User found in loadMoreFollowers: " + user);
+                userList[i] = user;
+            }
+            return [userList, response[1]];
         });
     }
     loadMoreFollowees(authToken, user, pageSize, lastItem) {
         return __awaiter(this, void 0, void 0, function* () {
-            // TODO: Replace with the result of calling server
             AuthTokenTableDAO_1.AuthTokenTableDAO.authenticate(authToken);
-            return tweeter_shared_1.FakeData.instance.getPageOfUsers(lastItem, pageSize, user);
+            const response = yield this.getFollowDAO().loadMoreFollowees(authToken, user, pageSize, lastItem);
+            console.log("Response from loadMoreFollowees: " + response.toString());
+            const stringList = response[0];
+            if (stringList.length == 0) {
+                console.log("No users found in loadMoreFollowees");
+                return [[], false];
+            }
+            const userList = [];
+            for (let i = 0; i < stringList.length; i++) {
+                const user = yield this.getUserDAO().getUser(stringList[i]);
+                console.log("User found in loadMoreFollowees: " + user);
+                userList[i] = user;
+            }
+            return [userList, response[1]];
         });
     }
     getIsFollowerStatus(authToken, user, selectedUser) {

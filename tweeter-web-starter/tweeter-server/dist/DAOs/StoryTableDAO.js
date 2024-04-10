@@ -11,13 +11,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.StoryTableDAO = void 0;
 const tweeter_shared_1 = require("tweeter-shared");
+const ClientAccess_1 = require("./ClientAccess");
 const client_dynamodb_1 = require("@aws-sdk/client-dynamodb");
 const lib_dynamodb_1 = require("@aws-sdk/lib-dynamodb");
 //Story table will have the key alias, and associate those with their statuses sorted by timestame
 class StoryTableDAO {
     constructor() {
-        this.client = new client_dynamodb_1.DynamoDBClient({ region: "us-east-1" });
-        this.ddbDocClient = lib_dynamodb_1.DynamoDBDocumentClient.from(this.client);
         this.storyTableName = "stories";
         this.authTokenTableName = "authtokens";
     }
@@ -43,7 +42,7 @@ class StoryTableDAO {
                     }
             };
             const items = [];
-            const data = yield this.ddbDocClient.send(new lib_dynamodb_1.QueryCommand(params));
+            const data = yield (0, ClientAccess_1.getDocumentClient)().send(new lib_dynamodb_1.QueryCommand(params));
             console.log(data);
             const hasMorePages = data.LastEvaluatedKey !== undefined;
             (_a = data.Items) === null || _a === void 0 ? void 0 : _a.forEach((item) => items.push(new tweeter_shared_1.Status(item.post, user, Number(item.time_stamp))));
@@ -90,7 +89,7 @@ class StoryTableDAO {
                 },
                 ReturnValues: client_dynamodb_1.ReturnValue.UPDATED_NEW
             };
-            const responseToUpdate = yield this.client.send(new lib_dynamodb_1.UpdateCommand(updateParams));
+            const responseToUpdate = yield (0, ClientAccess_1.getDocumentClient)().send(new lib_dynamodb_1.UpdateCommand(updateParams));
             if (responseToUpdate == null) {
                 throw new Error("Error posting status");
             }

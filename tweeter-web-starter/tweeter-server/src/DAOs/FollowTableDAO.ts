@@ -1,24 +1,17 @@
-import { DynamoDBClient, PutItemCommand, PutItemCommandInput, QueryCommand, UpdateItemCommand, UpdateItemCommandInput } from "@aws-sdk/client-dynamodb";
-import {
-    DeleteCommand,
-    DynamoDBDocumentClient,
-    GetCommand, PutCommand, QueryCommandInput,
-} from "@aws-sdk/lib-dynamodb";
 import { AuthToken, User } from "tweeter-shared";
 import { FollowTableDAOInterface } from "./AbstractFollowTableDAO";
-import { GetItemCommand } from "@aws-sdk/client-dynamodb";
 import { AuthTokenTableDAO } from "./AuthTokenTableDAO";
-import { UserTableDAO } from "./UserTableDAO";
+import { getClient, getDocumentClient } from "./ClientAccess";
+import { DeleteCommand, PutCommand, QueryCommand, QueryCommandInput, } from "@aws-sdk/lib-dynamodb";
+
 
 //Follow table will have two indexes
 // One is the key follow_alias, and associates follow_username, followee_alias, and followee_username (This one is to find all the people they follow)
 // The other is key followee_alias, and assocites followee_username, follow_alias and follow_username (This one is to find all the people that follow them)
 
 export class FollowTableDAO implements FollowTableDAOInterface {
-    private client: DynamoDBClient = new DynamoDBClient({ region: "us-east-1" });
     private readonly followTableName: string = "follows";
     private readonly userTableName: string = "users";
-    private ddbDocClient = DynamoDBDocumentClient.from(this.client);
 
     constructor() { }
 
@@ -27,13 +20,14 @@ export class FollowTableDAO implements FollowTableDAOInterface {
         user: User,
         pageSize: number,
         lastItem: User | null
-    ): Promise<[User[], boolean]> {
+    ): Promise<[string[], boolean]> {
 
         const followee_alias = user.alias;
         console.log("Alias for follower :" + followee_alias);
 
         const params: QueryCommandInput = {
-            TableName: this.userTableName,
+            TableName: this.followTableName,
+            IndexName: "followee_alias-follower_alias-index",
             KeyConditionExpression: "followee_alias = :followee_alias",
             ExpressionAttributeValues: {
                 ":followee_alias": followee_alias
@@ -46,21 +40,20 @@ export class FollowTableDAO implements FollowTableDAOInterface {
                 }
         };
 
-        const items: User[] = [];
-        const data = await this.ddbDocClient.send(new QueryCommand(params));
-        console.log(data);
+
+        // const items: User[] = [];
+        const aliasList: string[] = [];
+        const data = await getDocumentClient().send(new QueryCommand(params));
+        console.log("This is the Data :" + JSON.stringify(data));
         const hasMorePages = data.LastEvaluatedKey !== undefined;
-        // data.Items?.forEach((item) =>
-        //     items.push(
-        //         new User(
-        //             item.first_name,
-        //             item.last_name,
-        //             item.alias,
-        //             item.image_URL
-        //         )
-        //     )
-        // );
-        return [items, hasMorePages];
+        data.Items?.forEach((item) => {
+            if (item.follower_alias && item.follower_alias.trim() !== "") {
+                aliasList.push(item.follower_alias);
+            }
+        });
+        console.log("Alias List: " + aliasList);
+
+        return [aliasList, hasMorePages];
     }
 
     async loadMoreFollowees(
@@ -68,9 +61,38 @@ export class FollowTableDAO implements FollowTableDAOInterface {
         user: User,
         pageSize: number,
         lastItem: User | null
-    ): Promise<[User[], boolean]> {
+    ): Promise<[string[], boolean]> {
 
-        throw new Error("Method not implemented.");
+        const follower_alias = user.alias;
+        console.log("Alias for follower :" + follower_alias);
+
+        const params: QueryCommandInput = {
+            TableName: this.followTableName,
+            KeyConditionExpression: "follower_alias = :follower_alias",
+            ExpressionAttributeValues: {
+                ":follower_alias": follower_alias
+            },
+            Limit: pageSize,
+            ExclusiveStartKey: lastItem === undefined || lastItem === null
+                ? undefined
+                : {
+                    ["follower_alias"]: follower_alias,
+                }
+        };
+
+        // const items: User[] = [];
+        const aliasList: string[] = [];
+        const data = await getDocumentClient().send(new QueryCommand(params));
+        console.log("This is the Data :" + JSON.stringify(data));
+        const hasMorePages = data.LastEvaluatedKey !== undefined;
+        data.Items?.forEach((item) => {
+            if (item.followee_alias && item.followee_alias.trim() !== "") {
+                aliasList.push(item.followee_alias);
+            }
+        });
+        console.log("Alias List: " + aliasList);
+
+        return [aliasList, hasMorePages];
     }
 
     //About to test
@@ -94,66 +116,11 @@ export class FollowTableDAO implements FollowTableDAOInterface {
             }
         };
 
-        const response = await this.client.send(new QueryCommand(params));
+        const response = await getDocumentClient().send(new QueryCommand(params));
         console.log("Response: " + JSON.stringify(response));
         return response.Items && response.Items.length > 0 ? true : false;
 
     }
-
-    // async getFolloweesCount(
-    //     authToken: AuthToken,
-    //     user: User
-    // ): Promise<number> {
-    //     // console.log("User: " + JSON.stringify(user));
-    //     const aliasToUse: string = user.alias;
-    //     console.log("Alias to use: " + aliasToUse);
-    //     // const params = {
-    //     //     TableName: this.userTableName,
-    //     //     Key: {
-    //     //         'alias': aliasToUse,
-    //     //     },
-    //     // };
-    //     // console.log("Attempting to get followee count of " + aliasToUse);
-    //     // const output = await this.ddbDocClient.send(new GetCommand(params));
-    //     // console.log("Output: " + JSON.stringify(output));
-    //     // if (output.Item === undefined) {
-    //     //     console.log("Output is undefined");
-    //     //     return -1;
-    //     // }
-    //     // console.log("Output count :" + output.Item.followee_count.N);
-    //     // if (!output.Item || !output.Item.followee_count || !output.Item.followee_count.N) {
-    //     //     return 0;
-    //     // }
-    //     // return Number(output.Item.followee_count.N);
-    // }
-
-    // async getFollowersCount(
-    //     authToken: AuthToken,
-    //     user: User
-    // ): Promise<number> {
-    //     AuthTokenTableDAO.authenticate(authToken);
-    //     // console.log("User: " + JSON.stringify(user));
-    //     const aliasToUse: string = user.alias;
-    //     // console.log("Alias to use: " + aliasToUse);
-    //     const params = {
-    //         TableName: this.userTableName,
-    //         Key: {
-    //             'alias': aliasToUse,
-    //         },
-    //     };
-    //     console.log("Attempting to get follower count of " + aliasToUse);
-    //     const output = await this.ddbDocClient.send(new GetCommand(params));
-    //     console.log("Output: " + JSON.stringify(output));
-    //     if (output.Item === undefined) {
-    //         console.log("Output is undefined");
-    //         return -1;
-    //     }
-    //     console.log("Output count :" + output.Item.follower_count.N);
-    //     if (!output.Item || !output.Item.follower_count || !output.Item.follower_count.N) {
-    //         return 0;
-    //     }
-    //     return Number(output.Item.follower_count.N);
-    // }
 
     // async getFolloweesCountByQuery(
     //     authToken: AuthToken,
@@ -199,7 +166,7 @@ export class FollowTableDAO implements FollowTableDAOInterface {
             }
         };
 
-        const response = await this.ddbDocClient.send(new PutCommand(params));
+        const response = await getDocumentClient().send(new PutCommand(params));
         console.log(response);
 
         return followerAlias;
@@ -224,7 +191,7 @@ export class FollowTableDAO implements FollowTableDAOInterface {
             }
         };
 
-        const response = await this.ddbDocClient.send(new DeleteCommand(params));
+        const response = await getDocumentClient().send(new DeleteCommand(params));
         console.log(response);
 
         return followerAlias;

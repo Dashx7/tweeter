@@ -1,42 +1,32 @@
 import { AuthToken, User } from "tweeter-shared";
 
-export abstract class FollowTableDAOInterface {
-    abstract loadMoreFollowers(
+export interface FollowTableDAOInterface {
+    loadMoreFollowers(
         authToken: AuthToken,
         user: User,
         pageSize: number,
         lastItem: User | null
-    ): Promise<[User[], boolean]>;
+    ): Promise<[string[], boolean]>;
 
-    abstract loadMoreFollowees(
+    loadMoreFollowees(
         authToken: AuthToken,
         user: User,
         pageSize: number,
         lastItem: User | null
-    ): Promise<[User[], boolean]>;
+    ): Promise<[string[], boolean]>;
 
-    abstract getIsFollowerStatus(
+    getIsFollowerStatus(
         authToken: AuthToken,
         user: User,
         selectedUser: User
     ): Promise<boolean>;
 
-    // abstract getFolloweesCount(
-    //     authToken: AuthToken,
-    //     user: User
-    // ): Promise<number>;
-
-    // abstract getFollowersCount(
-    //     authToken: AuthToken,
-    //     user: User
-    // ): Promise<number>;
-
-    abstract follow(
+    follow(
         authToken: AuthToken,
         userToFollow: User
     ): Promise<String>;
 
-    abstract unfollow(
+    unfollow(
         authToken: AuthToken,
         userToUnfollow: User
     ): Promise<String>;

@@ -9,9 +9,22 @@ export class FollowService extends BaseService {
         pageSize: number,
         lastItem: User | null
     ): Promise<[User[], boolean]> {
-        // TODO: Replace with the result of calling server
         AuthTokenTableDAO.authenticate(authToken);
-        return FakeData.instance.getPageOfUsers(lastItem, pageSize, user);
+
+        const response = await this.getFollowDAO().loadMoreFollowers(authToken, user, pageSize, lastItem);
+        console.log("Response from loadMoreFollowers: " + response.toString());
+        const stringList: string[] = response[0];
+        if (stringList.length == 0) {
+            console.log("No users found in loadMoreFollowers");
+            return [[], false];
+        }
+        const userList: User[] = [];
+        for (let i = 0; i < stringList.length; i++) {
+            const user = await this.getUserDAO().getUser(stringList[i]);
+            console.log("User found in loadMoreFollowers: " + user);
+            userList[i] = user;
+        }
+        return [userList, response[1]];
     }
 
     public async loadMoreFollowees(
@@ -20,9 +33,22 @@ export class FollowService extends BaseService {
         pageSize: number,
         lastItem: User | null
     ): Promise<[User[], boolean]> {
-        // TODO: Replace with the result of calling server
         AuthTokenTableDAO.authenticate(authToken);
-        return FakeData.instance.getPageOfUsers(lastItem, pageSize, user);
+
+        const response = await this.getFollowDAO().loadMoreFollowees(authToken, user, pageSize, lastItem);
+        console.log("Response from loadMoreFollowees: " + response.toString());
+        const stringList: string[] = response[0];
+        if (stringList.length == 0) {
+            console.log("No users found in loadMoreFollowees");
+            return [[], false];
+        }
+        const userList: User[] = [];
+        for (let i = 0; i < stringList.length; i++) {
+            const user = await this.getUserDAO().getUser(stringList[i]);
+            console.log("User found in loadMoreFollowees: " + user);
+            userList[i] = user;
+        }
+        return [userList, response[1]];
     }
 
     public async getIsFollowerStatus(

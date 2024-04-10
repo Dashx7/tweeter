@@ -10,15 +10,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserTableDAO = void 0;
-const lib_dynamodb_1 = require("@aws-sdk/lib-dynamodb");
-const client_dynamodb_1 = require("@aws-sdk/client-dynamodb");
 const tweeter_shared_1 = require("tweeter-shared");
+const ClientAccess_1 = require("./ClientAccess");
+const lib_dynamodb_1 = require("@aws-sdk/lib-dynamodb");
 //Usertable will be key alias, and have passwordHashed, first_name, last_name, image_URL, follower_count, followee_count
 class UserTableDAO {
     constructor() {
-        this.client = new client_dynamodb_1.DynamoDBClient({ region: "us-east-1" });
         this.tableName = "users";
-        this.ddbDocClient = lib_dynamodb_1.DynamoDBDocumentClient.from(this.client);
     }
     getUser(alias) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -28,7 +26,7 @@ class UserTableDAO {
                     alias: alias
                 }
             };
-            const response = yield this.client.send(new lib_dynamodb_1.GetCommand(params));
+            const response = yield (0, ClientAccess_1.getClient)().send(new lib_dynamodb_1.GetCommand(params));
             if (!response.Item) {
                 throw new Error(`User with alias ${alias} not found`);
             }
@@ -53,7 +51,7 @@ class UserTableDAO {
                 },
                 UpdateExpression: "SET followee_count = followee_count + :inc",
             };
-            const response = yield this.ddbDocClient.send(new lib_dynamodb_1.UpdateCommand(params));
+            const response = yield (0, ClientAccess_1.getDocumentClient)().send(new lib_dynamodb_1.UpdateCommand(params));
             console.log(response);
             const params2 = {
                 TableName: this.tableName,
@@ -65,7 +63,7 @@ class UserTableDAO {
                 },
                 UpdateExpression: "SET follower_count = follower_count + :inc",
             };
-            const response2 = yield this.ddbDocClient.send(new lib_dynamodb_1.UpdateCommand(params2));
+            const response2 = yield (0, ClientAccess_1.getDocumentClient)().send(new lib_dynamodb_1.UpdateCommand(params2));
             console.log(response2);
             return;
         });
@@ -82,7 +80,7 @@ class UserTableDAO {
                 },
                 UpdateExpression: "ADD followee_count :val"
             };
-            const response = yield this.ddbDocClient.send(new lib_dynamodb_1.UpdateCommand(params));
+            const response = yield (0, ClientAccess_1.getDocumentClient)().send(new lib_dynamodb_1.UpdateCommand(params));
             console.log(response);
             const params2 = {
                 TableName: this.tableName,
@@ -94,7 +92,7 @@ class UserTableDAO {
                 },
                 UpdateExpression: "ADD follower_count :val"
             };
-            const response2 = yield this.ddbDocClient.send(new lib_dynamodb_1.UpdateCommand(params2));
+            const response2 = yield (0, ClientAccess_1.getDocumentClient)().send(new lib_dynamodb_1.UpdateCommand(params2));
             console.log(response2);
             return;
         });
@@ -110,7 +108,7 @@ class UserTableDAO {
                     alias: aliasToUse
                 }
             };
-            const response = yield this.client.send(new lib_dynamodb_1.GetCommand(params));
+            const response = yield (0, ClientAccess_1.getClient)().send(new lib_dynamodb_1.GetCommand(params));
             console.log(response);
             if (!response.Item) {
                 throw new Error(`User with alias ${aliasToUse} not found`);
@@ -129,7 +127,7 @@ class UserTableDAO {
                     'alias': aliasToUse,
                 },
             };
-            const response = yield this.client.send(new lib_dynamodb_1.GetCommand(params));
+            const response = yield (0, ClientAccess_1.getClient)().send(new lib_dynamodb_1.GetCommand(params));
             console.log(response);
             if (!response.Item) {
                 throw new Error(`User with alias ${aliasToUse} not found`);

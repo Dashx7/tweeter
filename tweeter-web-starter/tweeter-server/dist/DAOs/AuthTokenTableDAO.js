@@ -14,18 +14,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthTokenTableDAO = void 0;
 const tweeter_shared_1 = require("tweeter-shared");
+const UserTableDAO_1 = require("./UserTableDAO");
+const ClientAccess_1 = require("./ClientAccess");
 const client_dynamodb_1 = require("@aws-sdk/client-dynamodb");
 const lib_dynamodb_1 = require("@aws-sdk/lib-dynamodb");
-const bcryptjs_1 = __importDefault(require("bcryptjs"));
-const client_s3_1 = require("@aws-sdk/client-s3");
+const client_s3_1 = require("@aws-sdk/client-s3"); //Change if it has problems to the lib-dynamodb
 const aws_sdk_1 = __importDefault(require("aws-sdk"));
-const UserTableDAO_1 = require("./UserTableDAO");
+const bcryptjs_1 = __importDefault(require("bcryptjs"));
 //AuthToken Table will have the key alias, and token and timestamp
 class AuthTokenTableDAO {
     constructor() {
         this.BUCKET = "joshwiseman340";
         this.REGION = "us-east-1";
-        this.client = new client_dynamodb_1.DynamoDBClient({ region: "us-east-1" }); // replacere with your region
         this.AuthTokenTableName = "authtokens"; // replace with your table name
         this.usersTableName = "users";
     }
@@ -74,7 +74,7 @@ class AuthTokenTableDAO {
                     alias: aliasToUse
                 }
             };
-            const response = yield this.client.send(new lib_dynamodb_1.GetCommand(params));
+            const response = yield (0, ClientAccess_1.getClient)().send(new lib_dynamodb_1.GetCommand(params));
             if (response.Item == null) {
                 throw new Error;
             }
@@ -117,7 +117,7 @@ class AuthTokenTableDAO {
                     timestamp: authToken.timestamp
                 }
             };
-            const responseToAuthPut = yield this.client.send(new lib_dynamodb_1.PutCommand(putParams));
+            const responseToAuthPut = yield (0, ClientAccess_1.getClient)().send(new lib_dynamodb_1.PutCommand(putParams));
             console.log(responseToAuthPut);
             let user = new tweeter_shared_1.User(response.Item.first_name, response.Item.last_name, response.Item.alias, response.Item.image_URL);
             return [user, authToken];
@@ -132,7 +132,7 @@ class AuthTokenTableDAO {
                     token: authToken.token
                 }
             };
-            yield this.client.send(new lib_dynamodb_1.DeleteCommand(params)); // Remove authtoken from authtoken table
+            yield (0, ClientAccess_1.getClient)().send(new lib_dynamodb_1.DeleteCommand(params)); // Remove authtoken from authtoken table
             return;
         });
     }
@@ -155,7 +155,7 @@ class AuthTokenTableDAO {
             console.log("Attemping to put object");
             const c = yield new client_s3_1.PutObjectCommand(s3Params);
             try {
-                yield this.client.send(c);
+                yield (0, ClientAccess_1.getClient)().send(c);
                 return (`https://${this.BUCKET}.s3.${this.REGION}.amazonaws.com/image/${fileName}`);
             }
             catch (error) {
@@ -189,13 +189,16 @@ class AuthTokenTableDAO {
     register(firstName, lastName, alias, password, userImageBytes) {
         return __awaiter(this, void 0, void 0, function* () {
             // Check if alias is already in use
+            if (alias[0] != '@') {
+                alias = '@' + alias;
+            }
             const paramsCheck = {
                 TableName: this.usersTableName,
                 Key: {
                     alias: alias
                 }
             };
-            const responseCheck = yield this.client.send(new lib_dynamodb_1.GetCommand(paramsCheck));
+            const responseCheck = yield (0, ClientAccess_1.getClient)().send(new lib_dynamodb_1.GetCommand(paramsCheck));
             if (responseCheck.Item) {
                 throw new Error("Alias already in use");
             }
@@ -228,7 +231,7 @@ class AuthTokenTableDAO {
                     followee_count: 0
                 }
             };
-            yield this.client.send(new lib_dynamodb_1.PutCommand(params));
+            yield (0, ClientAccess_1.getClient)().send(new lib_dynamodb_1.PutCommand(params));
             let user = new tweeter_shared_1.User(firstName, lastName, alias, image_URL); // Making the user object to return
             const authToken = tweeter_shared_1.AuthToken.Generate(); // Put authtoken into authtoken table
             const putParams = {
@@ -239,7 +242,7 @@ class AuthTokenTableDAO {
                     timestamp: authToken.timestamp
                 }
             };
-            yield this.client.send(new lib_dynamodb_1.PutCommand(putParams));
+            yield (0, ClientAccess_1.getClient)().send(new lib_dynamodb_1.PutCommand(putParams));
             return [user, authToken];
         });
     }

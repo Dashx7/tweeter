@@ -1,14 +1,13 @@
 import { AuthToken, User, Status } from "tweeter-shared";
 import { StoryTableInterface } from "./AbstractStoryTableDAO";
-import { DynamoDBClient, ReturnValue } from "@aws-sdk/client-dynamodb";
-import { DynamoDBDocumentClient, QueryCommand, QueryCommandInput, UpdateCommand } from "@aws-sdk/lib-dynamodb";
+import { getClient, getDocumentClient } from "./ClientAccess";
+import { ReturnValue } from "@aws-sdk/client-dynamodb";
+import { QueryCommand, QueryCommandInput, UpdateCommand } from "@aws-sdk/lib-dynamodb";
 
 
 //Story table will have the key alias, and associate those with their statuses sorted by timestame
 
 export class StoryTableDAO implements StoryTableInterface {
-    private client = new DynamoDBClient({ region: "us-east-1" });
-    private ddbDocClient = DynamoDBDocumentClient.from(this.client);
     private readonly storyTableName = "stories";
     private readonly authTokenTableName = "authtokens";
 
@@ -40,7 +39,7 @@ export class StoryTableDAO implements StoryTableInterface {
         };
 
         const items: Status[] = [];
-        const data = await this.ddbDocClient.send(new QueryCommand(params));
+        const data = await getDocumentClient().send(new QueryCommand(params));
         console.log(data);
         const hasMorePages = data.LastEvaluatedKey !== undefined;
         data.Items?.forEach((item) =>
@@ -100,7 +99,7 @@ export class StoryTableDAO implements StoryTableInterface {
             ReturnValues: ReturnValue.UPDATED_NEW
         };
 
-        const responseToUpdate = await this.client.send(new UpdateCommand(updateParams));
+        const responseToUpdate = await getDocumentClient().send(new UpdateCommand(updateParams));
         if (responseToUpdate == null) {
             throw new Error("Error posting status");
         }

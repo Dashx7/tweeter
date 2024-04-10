@@ -1,18 +1,12 @@
-import {
-    DynamoDBDocumentClient,
-    GetCommand,
-    UpdateCommand,
-} from "@aws-sdk/lib-dynamodb";
-import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { AuthToken, User } from "tweeter-shared";
-import { AuthTokenTableDAO } from "./AuthTokenTableDAO";
+import { getClient, getDocumentClient } from "./ClientAccess";
+import { GetCommand, UpdateCommand, } from "@aws-sdk/lib-dynamodb";
+
 
 //Usertable will be key alias, and have passwordHashed, first_name, last_name, image_URL, follower_count, followee_count
 
 export class UserTableDAO {
-    private client: DynamoDBClient = new DynamoDBClient({ region: "us-east-1" });
     private readonly tableName: string = "users";
-    private ddbDocClient = DynamoDBDocumentClient.from(this.client);
 
     async getUser(alias: string): Promise<User> {
         const params = {
@@ -22,7 +16,7 @@ export class UserTableDAO {
             }
         };
 
-        const response = await this.client.send(new GetCommand(params));
+        const response = await getClient().send(new GetCommand(params));
 
         if (!response.Item) {
             throw new Error(`User with alias ${alias} not found`);
@@ -48,7 +42,7 @@ export class UserTableDAO {
             },
             UpdateExpression: "SET followee_count = followee_count + :inc",
         };
-        const response = await this.ddbDocClient.send(new UpdateCommand(params));
+        const response = await getDocumentClient().send(new UpdateCommand(params));
         console.log(response);
 
         const params2 = {
@@ -61,7 +55,7 @@ export class UserTableDAO {
             },
             UpdateExpression: "SET follower_count = follower_count + :inc",
         };
-        const response2 = await this.ddbDocClient.send(new UpdateCommand(params2));
+        const response2 = await getDocumentClient().send(new UpdateCommand(params2));
         console.log(response2);
 
         return;
@@ -79,7 +73,7 @@ export class UserTableDAO {
             },
             UpdateExpression: "ADD followee_count :val"
         };
-        const response = await this.ddbDocClient.send(new UpdateCommand(params));
+        const response = await getDocumentClient().send(new UpdateCommand(params));
         console.log(response);
 
         const params2 = {
@@ -92,7 +86,7 @@ export class UserTableDAO {
             },
             UpdateExpression: "ADD follower_count :val"
         };
-        const response2 = await this.ddbDocClient.send(new UpdateCommand(params2));
+        const response2 = await getDocumentClient().send(new UpdateCommand(params2));
         console.log(response2);
 
         return;
@@ -113,7 +107,7 @@ export class UserTableDAO {
             }
         };
 
-        const response = await this.client.send(new GetCommand(params));
+        const response = await getClient().send(new GetCommand(params));
         console.log(response);
 
         if (!response.Item) {
@@ -137,7 +131,7 @@ export class UserTableDAO {
             },
         };
 
-        const response = await this.client.send(new GetCommand(params));
+        const response = await getClient().send(new GetCommand(params));
         console.log(response);
 
         if (!response.Item) {

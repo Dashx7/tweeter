@@ -5,4 +5,15 @@ export interface UserTableInterface {
         authToken: AuthToken,
         alias: string
     ): Promise<User | null>;
+
+    getFolloweesCount(
+        authToken: AuthToken,
+        user: User
+    ): Promise<number>;
+
+    getFollowersCount(
+        authToken: AuthToken,
+        user: User
+    ): Promise<number>;
+
 }

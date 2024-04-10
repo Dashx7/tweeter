@@ -10,25 +10,25 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FollowTableDAO = void 0;
-const client_dynamodb_1 = require("@aws-sdk/client-dynamodb");
-const lib_dynamodb_1 = require("@aws-sdk/lib-dynamodb");
 const AuthTokenTableDAO_1 = require("./AuthTokenTableDAO");
+const ClientAccess_1 = require("./ClientAccess");
+const lib_dynamodb_1 = require("@aws-sdk/lib-dynamodb");
 //Follow table will have two indexes
 // One is the key follow_alias, and associates follow_username, followee_alias, and followee_username (This one is to find all the people they follow)
 // The other is key followee_alias, and assocites followee_username, follow_alias and follow_username (This one is to find all the people that follow them)
 class FollowTableDAO {
     constructor() {
-        this.client = new client_dynamodb_1.DynamoDBClient({ region: "us-east-1" });
         this.followTableName = "follows";
         this.userTableName = "users";
-        this.ddbDocClient = lib_dynamodb_1.DynamoDBDocumentClient.from(this.client);
     }
     loadMoreFollowers(authToken, user, pageSize, lastItem) {
         return __awaiter(this, void 0, void 0, function* () {
+            var _a;
             const followee_alias = user.alias;
             console.log("Alias for follower :" + followee_alias);
             const params = {
-                TableName: this.userTableName,
+                TableName: this.followTableName,
+                IndexName: "followee_alias-follower_alias-index",
                 KeyConditionExpression: "followee_alias = :followee_alias",
                 ExpressionAttributeValues: {
                     ":followee_alias": followee_alias
@@ -40,26 +40,50 @@ class FollowTableDAO {
                         ["followee_alias"]: followee_alias,
                     }
             };
-            const items = [];
-            const data = yield this.ddbDocClient.send(new client_dynamodb_1.QueryCommand(params));
-            console.log(data);
+            // const items: User[] = [];
+            const aliasList = [];
+            const data = yield (0, ClientAccess_1.getDocumentClient)().send(new lib_dynamodb_1.QueryCommand(params));
+            console.log("This is the Data :" + JSON.stringify(data));
             const hasMorePages = data.LastEvaluatedKey !== undefined;
-            // data.Items?.forEach((item) =>
-            //     items.push(
-            //         new User(
-            //             item.first_name,
-            //             item.last_name,
-            //             item.alias,
-            //             item.image_URL
-            //         )
-            //     )
-            // );
-            return [items, hasMorePages];
+            (_a = data.Items) === null || _a === void 0 ? void 0 : _a.forEach((item) => {
+                if (item.follower_alias && item.follower_alias.trim() !== "") {
+                    aliasList.push(item.follower_alias);
+                }
+            });
+            console.log("Alias List: " + aliasList);
+            return [aliasList, hasMorePages];
         });
     }
     loadMoreFollowees(authToken, user, pageSize, lastItem) {
         return __awaiter(this, void 0, void 0, function* () {
-            throw new Error("Method not implemented.");
+            var _a;
+            const follower_alias = user.alias;
+            console.log("Alias for follower :" + follower_alias);
+            const params = {
+                TableName: this.followTableName,
+                KeyConditionExpression: "follower_alias = :follower_alias",
+                ExpressionAttributeValues: {
+                    ":follower_alias": follower_alias
+                },
+                Limit: pageSize,
+                ExclusiveStartKey: lastItem === undefined || lastItem === null
+                    ? undefined
+                    : {
+                        ["follower_alias"]: follower_alias,
+                    }
+            };
+            // const items: User[] = [];
+            const aliasList = [];
+            const data = yield (0, ClientAccess_1.getDocumentClient)().send(new lib_dynamodb_1.QueryCommand(params));
+            console.log("This is the Data :" + JSON.stringify(data));
+            const hasMorePages = data.LastEvaluatedKey !== undefined;
+            (_a = data.Items) === null || _a === void 0 ? void 0 : _a.forEach((item) => {
+                if (item.followee_alias && item.followee_alias.trim() !== "") {
+                    aliasList.push(item.followee_alias);
+                }
+            });
+            console.log("Alias List: " + aliasList);
+            return [aliasList, hasMorePages];
         });
     }
     //About to test
@@ -77,64 +101,11 @@ class FollowTableDAO {
                     ":followedAlias": followedAlias
                 }
             };
-            const response = yield this.client.send(new client_dynamodb_1.QueryCommand(params));
+            const response = yield (0, ClientAccess_1.getDocumentClient)().send(new lib_dynamodb_1.QueryCommand(params));
             console.log("Response: " + JSON.stringify(response));
             return response.Items && response.Items.length > 0 ? true : false;
         });
     }
-    // async getFolloweesCount(
-    //     authToken: AuthToken,
-    //     user: User
-    // ): Promise<number> {
-    //     // console.log("User: " + JSON.stringify(user));
-    //     const aliasToUse: string = user.alias;
-    //     console.log("Alias to use: " + aliasToUse);
-    //     // const params = {
-    //     //     TableName: this.userTableName,
-    //     //     Key: {
-    //     //         'alias': aliasToUse,
-    //     //     },
-    //     // };
-    //     // console.log("Attempting to get followee count of " + aliasToUse);
-    //     // const output = await this.ddbDocClient.send(new GetCommand(params));
-    //     // console.log("Output: " + JSON.stringify(output));
-    //     // if (output.Item === undefined) {
-    //     //     console.log("Output is undefined");
-    //     //     return -1;
-    //     // }
-    //     // console.log("Output count :" + output.Item.followee_count.N);
-    //     // if (!output.Item || !output.Item.followee_count || !output.Item.followee_count.N) {
-    //     //     return 0;
-    //     // }
-    //     // return Number(output.Item.followee_count.N);
-    // }
-    // async getFollowersCount(
-    //     authToken: AuthToken,
-    //     user: User
-    // ): Promise<number> {
-    //     AuthTokenTableDAO.authenticate(authToken);
-    //     // console.log("User: " + JSON.stringify(user));
-    //     const aliasToUse: string = user.alias;
-    //     // console.log("Alias to use: " + aliasToUse);
-    //     const params = {
-    //         TableName: this.userTableName,
-    //         Key: {
-    //             'alias': aliasToUse,
-    //         },
-    //     };
-    //     console.log("Attempting to get follower count of " + aliasToUse);
-    //     const output = await this.ddbDocClient.send(new GetCommand(params));
-    //     console.log("Output: " + JSON.stringify(output));
-    //     if (output.Item === undefined) {
-    //         console.log("Output is undefined");
-    //         return -1;
-    //     }
-    //     console.log("Output count :" + output.Item.follower_count.N);
-    //     if (!output.Item || !output.Item.follower_count || !output.Item.follower_count.N) {
-    //         return 0;
-    //     }
-    //     return Number(output.Item.follower_count.N);
-    // }
     // async getFolloweesCountByQuery(
     //     authToken: AuthToken,
     //     user: User
@@ -172,7 +143,7 @@ class FollowTableDAO {
                     followee_alias: followeeAlias
                 }
             };
-            const response = yield this.ddbDocClient.send(new lib_dynamodb_1.PutCommand(params));
+            const response = yield (0, ClientAccess_1.getDocumentClient)().send(new lib_dynamodb_1.PutCommand(params));
             console.log(response);
             return followerAlias;
         });
@@ -191,7 +162,7 @@ class FollowTableDAO {
                     followee_alias: followeeAlias
                 }
             };
-            const response = yield this.ddbDocClient.send(new lib_dynamodb_1.DeleteCommand(params));
+            const response = yield (0, ClientAccess_1.getDocumentClient)().send(new lib_dynamodb_1.DeleteCommand(params));
             console.log(response);
             return followerAlias;
         });

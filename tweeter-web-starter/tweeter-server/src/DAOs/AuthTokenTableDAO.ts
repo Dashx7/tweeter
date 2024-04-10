@@ -1,26 +1,22 @@
 import { AuthToken, User } from "tweeter-shared";
 import { AuthTokenTableInterface } from "./AbstractAuthTokenDAO";
+import { UserTableDAO } from "./UserTableDAO";
+import { getClient, getDocumentClient } from "./ClientAccess";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DeleteCommand, GetCommand, PutCommand } from "@aws-sdk/lib-dynamodb";
-import bcrypt from "bcryptjs";
-import {
-    PutObjectCommand,
-    ObjectCannedACL,
-} from "@aws-sdk/client-s3";
+import { PutObjectCommand, } from "@aws-sdk/client-s3"; //Change if it has problems to the lib-dynamodb
 import AWS from 'aws-sdk';
-import { UserTableDAO } from "./UserTableDAO";
+import bcrypt from "bcryptjs";
 
 //AuthToken Table will have the key alias, and token and timestamp
 
 export class AuthTokenTableDAO implements AuthTokenTableInterface {
-    private client: DynamoDBClient;
     private AuthTokenTableName: string;
     private usersTableName: string;
     readonly BUCKET = "joshwiseman340";
     readonly REGION = "us-east-1";
 
     constructor() {
-        this.client = new DynamoDBClient({ region: "us-east-1" }); // replacere with your region
         this.AuthTokenTableName = "authtokens"; // replace with your table name
         this.usersTableName = "users";
     }
@@ -74,7 +70,7 @@ export class AuthTokenTableDAO implements AuthTokenTableInterface {
             }
         };
 
-        const response = await this.client.send(new GetCommand(params));
+        const response = await getClient().send(new GetCommand(params));
 
         if (response.Item == null) {
             throw new Error;
@@ -122,7 +118,7 @@ export class AuthTokenTableDAO implements AuthTokenTableInterface {
                 timestamp: authToken.timestamp
             }
         };
-        const responseToAuthPut = await this.client.send(new PutCommand(putParams));
+        const responseToAuthPut = await getClient().send(new PutCommand(putParams));
         console.log(responseToAuthPut);
 
         let user: User = new User(response.Item.first_name, response.Item.last_name, response.Item.alias, response.Item.image_URL);
@@ -139,7 +135,7 @@ export class AuthTokenTableDAO implements AuthTokenTableInterface {
             }
         };
 
-        await this.client.send(new DeleteCommand(params)); // Remove authtoken from authtoken table
+        await getClient().send(new DeleteCommand(params)); // Remove authtoken from authtoken table
 
         return;
     }
@@ -168,7 +164,7 @@ export class AuthTokenTableDAO implements AuthTokenTableInterface {
         console.log("Attemping to put object");
         const c = await new PutObjectCommand(s3Params);
         try {
-            await this.client.send(c);
+            await getClient().send(c);
             return (
                 `https://${this.BUCKET}.s3.${this.REGION}.amazonaws.com/image/${fileName}`
             );
@@ -209,13 +205,16 @@ export class AuthTokenTableDAO implements AuthTokenTableInterface {
         userImageBytes: Uint8Array
     ): Promise<[User, AuthToken]> {
         // Check if alias is already in use
+        if (alias[0] != '@') {
+            alias = '@' + alias;
+        }
         const paramsCheck = {
             TableName: this.usersTableName,
             Key: {
                 alias: alias
             }
         };
-        const responseCheck = await this.client.send(new GetCommand(paramsCheck));
+        const responseCheck = await getClient().send(new GetCommand(paramsCheck));
         if (responseCheck.Item) {
             throw new Error("Alias already in use");
         }
@@ -255,7 +254,7 @@ export class AuthTokenTableDAO implements AuthTokenTableInterface {
                 followee_count: 0
             }
         };
-        await this.client.send(new PutCommand(params));
+        await getClient().send(new PutCommand(params));
 
         let user = new User(firstName, lastName, alias, image_URL); // Making the user object to return
 
@@ -269,7 +268,7 @@ export class AuthTokenTableDAO implements AuthTokenTableInterface {
                 timestamp: authToken.timestamp
             }
         };
-        await this.client.send(new PutCommand(putParams));
+        await getClient().send(new PutCommand(putParams));
 
         return [user, authToken];
     }
