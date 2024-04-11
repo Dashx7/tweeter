@@ -57,6 +57,7 @@ export class FollowService extends BaseService {
         selectedUser: User
     ): Promise<boolean> {
         AuthTokenTableDAO.authenticate(authToken);
+
         return this.getFollowDAO().getIsFollowerStatus(authToken, user, selectedUser);
     };
 

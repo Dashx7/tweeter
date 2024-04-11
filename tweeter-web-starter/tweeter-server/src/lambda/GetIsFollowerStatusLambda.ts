@@ -1,7 +1,4 @@
-import {
-    AuthToken,
-    GetIsFollowerRequest, GetIsFollowerResponse, User
-} from "tweeter-shared";
+import { GetIsFollowerRequest, GetIsFollowerResponse } from "tweeter-shared";
 import { FollowService } from "../model/service/FollowService";
 import { BAD_REQUEST, performErrorReportingOperation } from "./IntegrationResponseCommon";
 

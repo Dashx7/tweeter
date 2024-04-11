@@ -91,14 +91,14 @@ class FollowTableDAO {
         return __awaiter(this, void 0, void 0, function* () {
             // Retrieve follower information
             const followerAlias = user.alias;
-            const followedAlias = selectedUser.alias;
+            const followeeAlias = selectedUser.alias;
             // Using template literals
             const params = {
                 TableName: this.followTableName,
-                KeyConditionExpression: `followerAlias = :followerAlias AND followedAlias = :followedAlias`,
+                KeyConditionExpression: 'follower_alias = :follower_alias and followee_alias = :followee_alias',
                 ExpressionAttributeValues: {
-                    ":followerAlias": followerAlias,
-                    ":followedAlias": followedAlias
+                    ':follower_alias': followerAlias,
+                    ':followee_alias': followeeAlias
                 }
             };
             const response = yield (0, ClientAccess_1.getDocumentClient)().send(new lib_dynamodb_1.QueryCommand(params));

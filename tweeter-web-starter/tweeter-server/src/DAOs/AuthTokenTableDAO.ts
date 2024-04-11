@@ -11,20 +11,25 @@ import bcrypt from "bcryptjs";
 //AuthToken Table will have the key alias, and token and timestamp
 
 export class AuthTokenTableDAO implements AuthTokenTableInterface {
-    private AuthTokenTableName: string;
-    private usersTableName: string;
+    private AuthTokenTableName: string = "authtokens"
+    private usersTableName: string = "users";
     readonly BUCKET = "joshwiseman340";
     readonly REGION = "us-east-1";
 
-    constructor() {
-        this.AuthTokenTableName = "authtokens"; // replace with your table name
-        this.usersTableName = "users";
-    }
+    constructor() { }
 
     static async authenticate(authToken: AuthToken): Promise<boolean> {
         if (authToken.token == null) {
             throw new Error("Authenticate sees that AuthToken token is null");
         }
+        if (authToken.timestamp == null || authToken.timestamp == 0) {
+            throw new Error("Authenticate sees that AuthToken timestamp is null");
+        }
+        const timeAuthIsValid = 1000 * 60 * 60 * 24; // 24 hours
+        if (Date.now() - authToken.timestamp > timeAuthIsValid) {
+            throw new Error("AuthToken is expired");
+        }
+
         return true;
     }
 
@@ -135,7 +140,8 @@ export class AuthTokenTableDAO implements AuthTokenTableInterface {
             }
         };
 
-        await getClient().send(new DeleteCommand(params)); // Remove authtoken from authtoken table
+        const response = await getDocumentClient().send(new DeleteCommand(params)); // Remove authtoken from authtoken table
+        console.log("Response " + JSON.stringify(response));
 
         return;
     }
@@ -196,7 +202,7 @@ export class AuthTokenTableDAO implements AuthTokenTableInterface {
     }
 
 
-    // Done - Doesn't use correct s3 bucket
+    // Done - Doesn't use correct s3 bucket, okayed by professor
     async register(
         firstName: string,
         lastName: string,

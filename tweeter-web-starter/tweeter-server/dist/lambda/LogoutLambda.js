@@ -17,6 +17,9 @@ let handler = (event) => __awaiter(void 0, void 0, void 0, function* () {
     if (event.authToken == null) {
         throw new Error(IntegrationResponseCommon_1.BAD_REQUEST + "authToken is undefined");
     }
+    console.log("Logging out user with authToken: " + event.authToken);
+    event = tweeter_shared_1.LogoutRequest.fromJson(event);
+    console.log("processed event: " + JSON.stringify(event));
     return yield (0, IntegrationResponseCommon_1.performErrorReportingOperation)(() => __awaiter(void 0, void 0, void 0, function* () {
         yield new UserService_1.UserService().logout(event.authToken);
         return new tweeter_shared_1.VoidResponse(true);

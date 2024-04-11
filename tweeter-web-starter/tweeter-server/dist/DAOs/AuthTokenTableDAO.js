@@ -24,15 +24,22 @@ const bcryptjs_1 = __importDefault(require("bcryptjs"));
 //AuthToken Table will have the key alias, and token and timestamp
 class AuthTokenTableDAO {
     constructor() {
+        this.AuthTokenTableName = "authtokens";
+        this.usersTableName = "users";
         this.BUCKET = "joshwiseman340";
         this.REGION = "us-east-1";
-        this.AuthTokenTableName = "authtokens"; // replace with your table name
-        this.usersTableName = "users";
     }
     static authenticate(authToken) {
         return __awaiter(this, void 0, void 0, function* () {
             if (authToken.token == null) {
                 throw new Error("Authenticate sees that AuthToken token is null");
+            }
+            if (authToken.timestamp == null || authToken.timestamp == 0) {
+                throw new Error("Authenticate sees that AuthToken timestamp is null");
+            }
+            const timeAuthIsValid = 1000 * 60 * 60 * 24; // 24 hours
+            if (Date.now() - authToken.timestamp > timeAuthIsValid) {
+                throw new Error("AuthToken is expired");
             }
             return true;
         });
@@ -132,7 +139,8 @@ class AuthTokenTableDAO {
                     token: authToken.token
                 }
             };
-            yield (0, ClientAccess_1.getClient)().send(new lib_dynamodb_1.DeleteCommand(params)); // Remove authtoken from authtoken table
+            const response = yield (0, ClientAccess_1.getDocumentClient)().send(new lib_dynamodb_1.DeleteCommand(params)); // Remove authtoken from authtoken table
+            console.log("Response " + JSON.stringify(response));
             return;
         });
     }
@@ -185,7 +193,7 @@ class AuthTokenTableDAO {
             }
         });
     }
-    // Done - Doesn't use correct s3 bucket
+    // Done - Doesn't use correct s3 bucket, okayed by professor
     register(firstName, lastName, alias, password, userImageBytes) {
         return __awaiter(this, void 0, void 0, function* () {
             // Check if alias is already in use

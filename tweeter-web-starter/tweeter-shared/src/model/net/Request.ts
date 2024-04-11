@@ -39,6 +39,24 @@ export class LogoutRequest extends TweeterRequest {
         super();
         this.authToken = authToken;
     }
+
+    static fromJson(logoutRequest: LogoutRequest): LogoutRequest {
+        interface LogoutRequestJson {
+            authToken: AuthToken;
+        }
+        const jsonObject: LogoutRequestJson = logoutRequest as unknown as LogoutRequestJson;
+        let deserializedAuthToken = AuthToken.fromJson(JSON.stringify(jsonObject.authToken));
+        if (deserializedAuthToken === null) {
+            throw new Error(
+                "LogoutRequest, could not deserialize authToken with json:\n" +
+                JSON.stringify(jsonObject.authToken)
+            );
+        }
+        return new LogoutRequest(
+            deserializedAuthToken
+        );
+    }
+
 }
 
 export class GetUserRequest extends TweeterRequest {
@@ -210,11 +228,49 @@ export class GetIsFollowerRequest extends TweeterRequest {
         this.selectedUser = selectedUser;
     }
 
-    static fromJson(json: any): GetIsFollowerRequest {
-        const authToken = AuthToken.fromJson(json.authToken);
-        const user = User.fromJson(json.user);
-        const selectedUser = User.fromJson(json.selectedUser);
-        return new GetIsFollowerRequest(authToken!, user!, selectedUser!);
+    static fromJson(getIsFollowerRequest: GetIsFollowerRequest): GetIsFollowerRequest {
+        console.log("Attempting to deserialize GetIsFollowerRequest");
+        interface GetIsFollowerRequestJson {
+            authToken: AuthToken;
+            user: User;
+            selectedUser: User;
+        }
+        const jsonObject: GetIsFollowerRequestJson = getIsFollowerRequest as unknown as GetIsFollowerRequestJson;
+        console.log("jsonObject: " + JSON.stringify(jsonObject));
+        let deserializedAuthToken = AuthToken.fromJson(JSON.stringify(jsonObject.authToken));
+        console.log("deserializedAuthToken: " + JSON.stringify(deserializedAuthToken));
+        let deserializedUser = User.fromJson(JSON.stringify(jsonObject.user));
+        console.log("deserializedUser: " + JSON.stringify(deserializedUser));
+        let deserializedSelectedUser = User.fromJson(JSON.stringify(jsonObject.selectedUser));
+        console.log("deserializedSelectedUser: " + JSON.stringify(deserializedSelectedUser));
+        if (deserializedAuthToken === null) {
+            throw new Error(
+                "GetIsFollowerRequest, could not deserialize authToken with json:\n" +
+                JSON.stringify(jsonObject.authToken)
+            );
+        }
+        if (deserializedUser === null) {
+            throw new Error(
+                "GetIsFollowerRequest, could not deserialize user with json:\n" +
+                JSON.stringify(jsonObject.user)
+            );
+        }
+        if (deserializedSelectedUser === null) {
+            throw new Error(
+                "GetIsFollowerRequest, could not deserialize selectedUser with json:\n" +
+                JSON.stringify(jsonObject.selectedUser)
+            );
+        }
+        console.log("GetIsFollowerRequest.fromJson: deserializedAuthToken: " + JSON.stringify(deserializedAuthToken));
+        return new GetIsFollowerRequest(
+            deserializedAuthToken,
+            deserializedUser,
+            deserializedSelectedUser
+        );
+        // const authToken = AuthToken.fromJson(json.authToken);
+        // const user = User.fromJson(json.user);
+        // const selectedUser = User.fromJson(json.selectedUser);
+        // return new GetIsFollowerRequest(authToken!, user!, selectedUser!);
     }
 }
 

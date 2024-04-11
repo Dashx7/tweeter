@@ -104,15 +104,15 @@ export class FollowTableDAO implements FollowTableDAOInterface {
 
         // Retrieve follower information
         const followerAlias = user.alias;
-        const followedAlias = selectedUser.alias;
+        const followeeAlias = selectedUser.alias;
 
         // Using template literals
-        const params: QueryCommandInput = {
+        const params = {
             TableName: this.followTableName,
-            KeyConditionExpression: `followerAlias = :followerAlias AND followedAlias = :followedAlias`,
+            KeyConditionExpression: 'follower_alias = :follower_alias and followee_alias = :followee_alias',
             ExpressionAttributeValues: {
-                ":followerAlias": followerAlias,
-                ":followedAlias": followedAlias
+                ':follower_alias': followerAlias,
+                ':followee_alias': followeeAlias
             }
         };
 
