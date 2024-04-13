@@ -10,6 +10,7 @@ export class StatusService extends BaseService {
         lastItem: Status | null
     ): Promise<[Status[], boolean]> {
         AuthTokenTableDAO.authenticate(authToken);
+
         return FakeData.instance.getPageOfStatuses(lastItem, pageSize);
     }
 

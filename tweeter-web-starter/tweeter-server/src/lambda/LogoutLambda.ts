@@ -1,4 +1,4 @@
-import { AuthenticateResponse, LoginRequest, LogoutRequest, VoidResponse } from "tweeter-shared";
+import { LogoutRequest, VoidResponse } from "tweeter-shared";
 import { UserService } from "../model/service/UserService";
 import { BAD_REQUEST, performErrorReportingOperation } from "./IntegrationResponseCommon";
 

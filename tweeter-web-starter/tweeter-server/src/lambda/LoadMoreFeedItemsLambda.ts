@@ -1,9 +1,6 @@
-import {
-    LoadMoreStatusItemsRequest, LoadMoreStatusItemsResponse, Status
-} from "tweeter-shared";
+import { LoadMoreStatusItemsRequest, LoadMoreStatusItemsResponse, Status } from "tweeter-shared";
 import { StatusService } from "../model/service/StatusService";
 import { BAD_REQUEST, performErrorReportingOperation } from "./IntegrationResponseCommon";
-import { AuthToken } from "tweeter-shared";
 
 export let handler = async (event: LoadMoreStatusItemsRequest): Promise<LoadMoreStatusItemsResponse> => {
     console.log("LoadMoreStatusItemsRequest: " + JSON.stringify(event));

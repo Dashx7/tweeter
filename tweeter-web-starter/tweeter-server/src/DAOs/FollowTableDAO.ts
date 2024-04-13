@@ -1,7 +1,7 @@
 import { AuthToken, User } from "tweeter-shared";
 import { FollowTableDAOInterface } from "./AbstractFollowTableDAO";
 import { AuthTokenTableDAO } from "./AuthTokenTableDAO";
-import { getClient, getDocumentClient } from "./ClientAccess";
+import { getDocumentClient } from "./ClientAccess";
 import { DeleteCommand, PutCommand, QueryCommand, QueryCommandInput, } from "@aws-sdk/lib-dynamodb";
 
 
@@ -11,9 +11,6 @@ import { DeleteCommand, PutCommand, QueryCommand, QueryCommandInput, } from "@aw
 
 export class FollowTableDAO implements FollowTableDAOInterface {
     private readonly followTableName: string = "follows";
-    private readonly userTableName: string = "users";
-
-    constructor() { }
 
     async loadMoreFollowers(
         authToken: AuthToken,

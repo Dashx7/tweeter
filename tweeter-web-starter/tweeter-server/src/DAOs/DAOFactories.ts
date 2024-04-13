@@ -5,7 +5,7 @@ import { FeedTableDAO } from "./FeedTableDAO";
 import { StoryTableDAO } from "./StoryTableDAO";
 
 //Start of DAOFactories
-interface DAOFactoryInterface {
+export interface DAOFactoryInterface {
     getUserDAO(): UserTableDAO;
     getFollowDAO(): FollowTableDAO;
     getAuthTokenDAO(): AuthTokenTableDAO;

@@ -1,6 +1,4 @@
-import {
-    LoadMoreUserItemsRequest, LoadMoreUserItemsResponse
-} from "tweeter-shared";
+import { LoadMoreUserItemsRequest, LoadMoreUserItemsResponse } from "tweeter-shared";
 import { FollowService } from "../model/service/FollowService";
 import { BAD_REQUEST, performErrorReportingOperation } from "./IntegrationResponseCommon";
 

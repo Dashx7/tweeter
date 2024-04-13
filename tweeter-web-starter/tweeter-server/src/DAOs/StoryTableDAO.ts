@@ -1,6 +1,6 @@
 import { AuthToken, User, Status } from "tweeter-shared";
 import { StoryTableInterface } from "./AbstractStoryTableDAO";
-import { getClient, getDocumentClient } from "./ClientAccess";
+import { getDocumentClient } from "./ClientAccess";
 import { ReturnValue } from "@aws-sdk/client-dynamodb";
 import { QueryCommand, QueryCommandInput, UpdateCommand } from "@aws-sdk/lib-dynamodb";
 
@@ -9,7 +9,6 @@ import { QueryCommand, QueryCommandInput, UpdateCommand } from "@aws-sdk/lib-dyn
 
 export class StoryTableDAO implements StoryTableInterface {
     private readonly storyTableName = "stories";
-    private readonly authTokenTableName = "authtokens";
 
     async loadMoreStoryItems(
         authToken: AuthToken,
@@ -54,7 +53,6 @@ export class StoryTableDAO implements StoryTableInterface {
         return [items, hasMorePages];
     }
 
-    // Working
     async postStatus(
         authToken: AuthToken,
         status: Status

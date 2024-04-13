@@ -1,7 +1,4 @@
-import {
-    PostStatusRequest,
-    VoidResponse
-} from "tweeter-shared";
+import { PostStatusRequest, VoidResponse } from "tweeter-shared";
 import { StatusService } from "../model/service/StatusService";
 import { BAD_REQUEST, performErrorReportingOperation } from "./IntegrationResponseCommon";
 

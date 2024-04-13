@@ -1,4 +1,4 @@
-import { AuthToken, User, FakeData } from "tweeter-shared";
+import { AuthToken, User } from "tweeter-shared";
 import { BaseService } from "./BaseService";
 import { AuthTokenTableDAO } from "../../DAOs/AuthTokenTableDAO";
 

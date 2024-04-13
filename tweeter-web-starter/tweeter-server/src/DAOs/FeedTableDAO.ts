@@ -53,27 +53,8 @@ export class FeedTableDAO implements FeedTableInterface {
         status: Status
     ): Promise<void> {
 
+
         return;
-        //Send 
-
-        // const alias = status.user.alias; //Pulling the alias from the status's user
-        // const updateParams = {
-        //     TableName: this.feedTableName,
-        //     Key: {
-        //         alias: alias.toString(),
-        //         time_stamp: status.timestamp.toString()
-        //     },
-        //     UpdateExpression: 'SET post = :post',
-        //     ExpressionAttributeValues: {
-        //         ':post': status.post
-        //     },
-        //     ReturnValues: ReturnValue.UPDATED_NEW
-        // };
-
-        // const responseToUpdate = await getDocumentClient().send(new UpdateCommand(updateParams));
-        // if (responseToUpdate == null) {
-        //     throw new Error("Error posting status");
-        // }
-        // console.log(responseToUpdate);
+        //Call the Posts Queue now?
     }
 }

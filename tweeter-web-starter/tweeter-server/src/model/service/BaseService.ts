@@ -1,11 +1,9 @@
-//Has all the DAOS
-import { AuthToken } from "tweeter-shared";
-import { ConcreteDAOFactory } from "../../DAOs/DAOFactories";
+import { ConcreteDAOFactory, DAOFactoryInterface } from "../../DAOs/DAOFactories";
 
 //public DAO
-
+//This would be a way to not use Dyanmo DB, and replace the conretaiton take a variable to be able to switch between the two
 export class BaseService {
-    public DAOFactory: ConcreteDAOFactory = new ConcreteDAOFactory();
+    public DAOFactory: DAOFactoryInterface = new ConcreteDAOFactory();
 
     public getUserDAO() {
         return this.DAOFactory.getUserDAO();
