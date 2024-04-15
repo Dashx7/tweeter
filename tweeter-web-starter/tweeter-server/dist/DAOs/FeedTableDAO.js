@@ -15,16 +15,47 @@ class FeedTableDAO {
     constructor() {
         this.feedTableName = "feeds";
     }
-    loadMoreFeedItems(authToken, user, pageSize, lastItem) {
+    loadMoreFeedItems(user, pageSize, lastItem) {
         return __awaiter(this, void 0, void 0, function* () {
+            // const alias = user.alias;
+            // const time_stamp = lastItem?.timestamp;
+            // console.log("Alias for feed :" + alias + " Time stamp: " + time_stamp);
+            // //console.log(time_stamp);
+            // const params: QueryCommandInput = {
+            //     TableName: "stories",
+            //     KeyConditionExpression: "alias = :alias",
+            //     ExpressionAttributeValues: {
+            //         ":alias": alias
+            //     },
+            //     Limit: pageSize,
+            //     ExclusiveStartKey: lastItem === undefined || lastItem === null
+            //         ? undefined
+            //         : {
+            //             ["alias"]: alias,
+            //             ["time_stamp"]: lastItem.timestamp.toString()
+            //         }
+            // };
+            // const items: Status[] = [];
+            // const data = await getDocumentClient().send(new QueryCommand(params));
+            // console.log(data);
+            // const hasMorePages = data.LastEvaluatedKey !== undefined;
+            // data.Items?.forEach((item) =>
+            //     items.push(
+            //         new Status(
+            //             item.post,
+            //             user,
+            //             Number(item.time_stamp)
+            //         )
+            //     )
+            // );
+            // return [items, hasMorePages];
             return [[], false];
         });
     }
-    postStatus(authToken, status) {
+    postStatus(status) {
         return __awaiter(this, void 0, void 0, function* () {
             return;
-            // First query request of all followers of alias
-            // For each follower Put request their alias and then the status
+            //Call the Posts Queue now?
         });
     }
 }

@@ -20,4 +20,7 @@ export class BaseService {
     public getStoryDAO() {
         return this.DAOFactory.getStoryDAO();
     }
+    public getQueueDAO() {
+        return this.DAOFactory.getQueueDAO();
+    }
 }

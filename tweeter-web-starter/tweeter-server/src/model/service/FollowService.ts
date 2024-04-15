@@ -11,7 +11,7 @@ export class FollowService extends BaseService {
     ): Promise<[User[], boolean]> {
         AuthTokenTableDAO.authenticate(authToken);
 
-        const response = await this.getFollowDAO().loadMoreFollowers(authToken, user, pageSize, lastItem);
+        const response = await this.getFollowDAO().loadMoreFollowers(user, pageSize, lastItem);
         console.log("Response from loadMoreFollowers: " + response.toString());
         const stringList: string[] = response[0];
         if (stringList.length == 0) {
@@ -35,7 +35,7 @@ export class FollowService extends BaseService {
     ): Promise<[User[], boolean]> {
         AuthTokenTableDAO.authenticate(authToken);
 
-        const response = await this.getFollowDAO().loadMoreFollowees(authToken, user, pageSize, lastItem);
+        const response = await this.getFollowDAO().loadMoreFollowees(user, pageSize, lastItem);
         console.log("Response from loadMoreFollowees: " + response.toString());
         const stringList: string[] = response[0];
         if (stringList.length == 0) {
@@ -58,7 +58,7 @@ export class FollowService extends BaseService {
     ): Promise<boolean> {
         AuthTokenTableDAO.authenticate(authToken);
 
-        return this.getFollowDAO().getIsFollowerStatus(authToken, user, selectedUser);
+        return this.getFollowDAO().getIsFollowerStatus(user, selectedUser);
     };
 
     public async getFolloweesCount(

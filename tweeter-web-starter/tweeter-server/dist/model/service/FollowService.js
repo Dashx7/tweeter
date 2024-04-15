@@ -16,7 +16,7 @@ class FollowService extends BaseService_1.BaseService {
     loadMoreFollowers(authToken, user, pageSize, lastItem) {
         return __awaiter(this, void 0, void 0, function* () {
             AuthTokenTableDAO_1.AuthTokenTableDAO.authenticate(authToken);
-            const response = yield this.getFollowDAO().loadMoreFollowers(authToken, user, pageSize, lastItem);
+            const response = yield this.getFollowDAO().loadMoreFollowers(user, pageSize, lastItem);
             console.log("Response from loadMoreFollowers: " + response.toString());
             const stringList = response[0];
             if (stringList.length == 0) {
@@ -35,7 +35,7 @@ class FollowService extends BaseService_1.BaseService {
     loadMoreFollowees(authToken, user, pageSize, lastItem) {
         return __awaiter(this, void 0, void 0, function* () {
             AuthTokenTableDAO_1.AuthTokenTableDAO.authenticate(authToken);
-            const response = yield this.getFollowDAO().loadMoreFollowees(authToken, user, pageSize, lastItem);
+            const response = yield this.getFollowDAO().loadMoreFollowees(user, pageSize, lastItem);
             console.log("Response from loadMoreFollowees: " + response.toString());
             const stringList = response[0];
             if (stringList.length == 0) {
@@ -54,7 +54,7 @@ class FollowService extends BaseService_1.BaseService {
     getIsFollowerStatus(authToken, user, selectedUser) {
         return __awaiter(this, void 0, void 0, function* () {
             AuthTokenTableDAO_1.AuthTokenTableDAO.authenticate(authToken);
-            return this.getFollowDAO().getIsFollowerStatus(authToken, user, selectedUser);
+            return this.getFollowDAO().getIsFollowerStatus(user, selectedUser);
         });
     }
     ;

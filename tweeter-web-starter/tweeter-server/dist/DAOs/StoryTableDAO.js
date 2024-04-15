@@ -18,9 +18,8 @@ const lib_dynamodb_1 = require("@aws-sdk/lib-dynamodb");
 class StoryTableDAO {
     constructor() {
         this.storyTableName = "stories";
-        this.authTokenTableName = "authtokens";
     }
-    loadMoreStoryItems(authToken, user, pageSize, lastItem) {
+    loadMoreStoryItems(user, pageSize, lastItem) {
         return __awaiter(this, void 0, void 0, function* () {
             var _a;
             const alias = user.alias;
@@ -49,34 +48,9 @@ class StoryTableDAO {
             return [items, hasMorePages];
         });
     }
-    // Working
-    postStatus(authToken, status) {
+    postStatus(status) {
         return __awaiter(this, void 0, void 0, function* () {
             const alias = status.user.alias; //Pulling the alias from the status's user
-            // console.log(status.segments);
-            // const formattedSegments = status.segments.map(segment => ({ // This is to format the segments to be put into the database
-            //     text: segment.text,
-            //     startPostion: segment.startPostion,
-            //     endPosition: segment.endPosition,
-            //     type: segment.type
-            // }));
-            // if (formattedSegments === null) {
-            //     throw new Error("Error formatting segments");
-            // }
-            // console.log(formattedSegments);
-            // const updateParams = {
-            //     TableName: this.storyTableName,
-            //     Key: {
-            //         alias: alias.toString(),
-            //         time_stamp: status.timestamp.toString()
-            //     },
-            //     UpdateExpression: 'SET status_segments = list_append(if_not_exists(status_segments, :empty_list), :newSegment)',
-            //     ExpressionAttributeValues: {
-            //         ':newSegment': [formattedSegments],
-            //         ':empty_list': []
-            //     },
-            //     ReturnValues: ReturnValue.UPDATED_NEW
-            // };
             const updateParams = {
                 TableName: this.storyTableName,
                 Key: {

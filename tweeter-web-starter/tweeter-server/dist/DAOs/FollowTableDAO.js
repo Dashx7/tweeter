@@ -19,9 +19,8 @@ const lib_dynamodb_1 = require("@aws-sdk/lib-dynamodb");
 class FollowTableDAO {
     constructor() {
         this.followTableName = "follows";
-        this.userTableName = "users";
     }
-    loadMoreFollowers(authToken, user, pageSize, lastItem) {
+    loadMoreFollowers(user, pageSize, lastItem) {
         return __awaiter(this, void 0, void 0, function* () {
             var _a;
             const followee_alias = user.alias;
@@ -40,7 +39,6 @@ class FollowTableDAO {
                         ["followee_alias"]: followee_alias,
                     }
             };
-            // const items: User[] = [];
             const aliasList = [];
             const data = yield (0, ClientAccess_1.getDocumentClient)().send(new lib_dynamodb_1.QueryCommand(params));
             console.log("This is the Data :" + JSON.stringify(data));
@@ -54,7 +52,7 @@ class FollowTableDAO {
             return [aliasList, hasMorePages];
         });
     }
-    loadMoreFollowees(authToken, user, pageSize, lastItem) {
+    loadMoreFollowees(user, pageSize, lastItem) {
         return __awaiter(this, void 0, void 0, function* () {
             var _a;
             const follower_alias = user.alias;
@@ -86,8 +84,7 @@ class FollowTableDAO {
             return [aliasList, hasMorePages];
         });
     }
-    //About to test
-    getIsFollowerStatus(authToken, user, selectedUser) {
+    getIsFollowerStatus(user, selectedUser) {
         return __awaiter(this, void 0, void 0, function* () {
             // Retrieve follower information
             const followerAlias = user.alias;
@@ -106,29 +103,6 @@ class FollowTableDAO {
             return response.Items && response.Items.length > 0 ? true : false;
         });
     }
-    // async getFolloweesCountByQuery(
-    //     authToken: AuthToken,
-    //     user: User
-    // ): Promise<number> {
-    //     AuthTokenTableDAO.authenticate(authToken);
-    //     console.log("User: " + JSON.stringify(user));
-    //     const aliasToUse: string = user.alias;
-    //     console.log("Alias to use: " + aliasToUse);
-    //     const params = {
-    //         TableName: this.userTableName,
-    //         Key: {
-    //             'alias': aliasToUse,
-    //         },
-    //     };
-    //     console.log("Attempting to get followee count of " + aliasToUse);
-    //     const output = await this.client.send(new GetCommand(params));
-    //     if (!output.Item || !output.Item.followee_count || !output.Item.followee_count.N) {
-    //         return 0;
-    //     }
-    //     console.log("Output count :" + output.Item.followee_count.N);
-    //     return Number(output.Item.followee_count.N);
-    // }
-    //Need to update count in users table
     follow(authToken, userToFollow) {
         return __awaiter(this, void 0, void 0, function* () {
             // Extract user information

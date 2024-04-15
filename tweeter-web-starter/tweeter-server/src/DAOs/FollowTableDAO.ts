@@ -13,7 +13,6 @@ export class FollowTableDAO implements FollowTableDAOInterface {
     private readonly followTableName: string = "follows";
 
     async loadMoreFollowers(
-        authToken: AuthToken,
         user: User,
         pageSize: number,
         lastItem: User | null
@@ -38,7 +37,6 @@ export class FollowTableDAO implements FollowTableDAOInterface {
         };
 
 
-        // const items: User[] = [];
         const aliasList: string[] = [];
         const data = await getDocumentClient().send(new QueryCommand(params));
         console.log("This is the Data :" + JSON.stringify(data));
@@ -54,7 +52,6 @@ export class FollowTableDAO implements FollowTableDAOInterface {
     }
 
     async loadMoreFollowees(
-        authToken: AuthToken,
         user: User,
         pageSize: number,
         lastItem: User | null
@@ -92,9 +89,8 @@ export class FollowTableDAO implements FollowTableDAOInterface {
         return [aliasList, hasMorePages];
     }
 
-    //About to test
+
     async getIsFollowerStatus(
-        authToken: AuthToken,
         user: User,
         selectedUser: User
     ): Promise<boolean> {
@@ -119,31 +115,6 @@ export class FollowTableDAO implements FollowTableDAOInterface {
 
     }
 
-    // async getFolloweesCountByQuery(
-    //     authToken: AuthToken,
-    //     user: User
-    // ): Promise<number> {
-    //     AuthTokenTableDAO.authenticate(authToken);
-    //     console.log("User: " + JSON.stringify(user));
-    //     const aliasToUse: string = user.alias;
-    //     console.log("Alias to use: " + aliasToUse);
-
-    //     const params = {
-    //         TableName: this.userTableName,
-    //         Key: {
-    //             'alias': aliasToUse,
-    //         },
-    //     };
-    //     console.log("Attempting to get followee count of " + aliasToUse);
-    //     const output = await this.client.send(new GetCommand(params));
-    //     if (!output.Item || !output.Item.followee_count || !output.Item.followee_count.N) {
-    //         return 0;
-    //     }
-    //     console.log("Output count :" + output.Item.followee_count.N);
-    //     return Number(output.Item.followee_count.N);
-    // }
-
-    //Need to update count in users table
     async follow(
         authToken: AuthToken,
         userToFollow: User

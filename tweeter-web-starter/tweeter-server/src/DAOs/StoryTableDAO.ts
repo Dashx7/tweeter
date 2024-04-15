@@ -11,7 +11,6 @@ export class StoryTableDAO implements StoryTableInterface {
     private readonly storyTableName = "stories";
 
     async loadMoreStoryItems(
-        authToken: AuthToken,
         user: User,
         pageSize: number,
         lastItem: Status | null
@@ -54,7 +53,6 @@ export class StoryTableDAO implements StoryTableInterface {
     }
 
     async postStatus(
-        authToken: AuthToken,
         status: Status
     ): Promise<void> {
         const alias = status.user.alias; //Pulling the alias from the status's user

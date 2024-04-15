@@ -6,7 +6,6 @@ import { FeedTableInterface } from "./AbstractFeedTableDAO";
 export class FeedTableDAO implements FeedTableInterface {
     private feedTableName: string = "feeds";
     async loadMoreFeedItems(
-        authToken: AuthToken,
         user: User,
         pageSize: number,
         lastItem: Status | null
@@ -49,7 +48,6 @@ export class FeedTableDAO implements FeedTableInterface {
     }
 
     async postStatus(
-        authToken: AuthToken,
         status: Status
     ): Promise<void> {
 
