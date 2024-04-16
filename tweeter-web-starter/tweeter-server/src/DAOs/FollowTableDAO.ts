@@ -116,13 +116,13 @@ export class FollowTableDAO implements FollowTableDAOInterface {
     }
 
     async follow(
-        authToken: AuthToken,
+        // authToken: AuthToken,
+        originalUser: User,
         userToFollow: User
     ): Promise<string> {
 
         // Extract user information
         const followeeAlias = userToFollow.alias; // Assuming alias is the user's identifier
-        const originalUser = await AuthTokenTableDAO.findUserByAuthToken(authToken);
         const followerAlias = originalUser.alias;
 
         console.log("Follower alias: " + followerAlias + " Followee alias: " + followeeAlias);
@@ -135,7 +135,7 @@ export class FollowTableDAO implements FollowTableDAOInterface {
         };
 
         const response = await getDocumentClient().send(new PutCommand(params));
-        console.log(response);
+        // console.log(response);
 
         return followerAlias;
     }

@@ -25,7 +25,6 @@ class StoryTableDAO {
             const alias = user.alias;
             const time_stamp = lastItem === null || lastItem === void 0 ? void 0 : lastItem.timestamp;
             console.log("Alias for story :" + alias + " Time stamp: " + time_stamp);
-            //console.log(time_stamp);
             const params = {
                 TableName: "stories",
                 KeyConditionExpression: "alias = :alias",
@@ -45,6 +44,7 @@ class StoryTableDAO {
             console.log(data);
             const hasMorePages = data.LastEvaluatedKey !== undefined;
             (_a = data.Items) === null || _a === void 0 ? void 0 : _a.forEach((item) => items.push(new tweeter_shared_1.Status(item.post, user, Number(item.time_stamp))));
+            // items.reverse(); // Reverse the order of the items so that the most recent status is first
             return [items, hasMorePages];
         });
     }

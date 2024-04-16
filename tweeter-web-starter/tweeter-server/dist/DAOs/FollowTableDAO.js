@@ -103,11 +103,12 @@ class FollowTableDAO {
             return response.Items && response.Items.length > 0 ? true : false;
         });
     }
-    follow(authToken, userToFollow) {
+    follow(
+    // authToken: AuthToken,
+    originalUser, userToFollow) {
         return __awaiter(this, void 0, void 0, function* () {
             // Extract user information
             const followeeAlias = userToFollow.alias; // Assuming alias is the user's identifier
-            const originalUser = yield AuthTokenTableDAO_1.AuthTokenTableDAO.findUserByAuthToken(authToken);
             const followerAlias = originalUser.alias;
             console.log("Follower alias: " + followerAlias + " Followee alias: " + followeeAlias);
             const params = {
@@ -118,7 +119,7 @@ class FollowTableDAO {
                 }
             };
             const response = yield (0, ClientAccess_1.getDocumentClient)().send(new lib_dynamodb_1.PutCommand(params));
-            console.log(response);
+            // console.log(response);
             return followerAlias;
         });
     }

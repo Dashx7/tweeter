@@ -78,7 +78,7 @@ export class AuthTokenTableDAO implements AuthTokenTableInterface {
         const response = await getClient().send(new GetCommand(params));
 
         if (response.Item == null) {
-            throw new Error;
+            throw new Error("Invalid alias or password");
         }
         console.log(response.Item);
 
@@ -131,7 +131,6 @@ export class AuthTokenTableDAO implements AuthTokenTableInterface {
         return [user, authToken];
     }
 
-    // Todo: Test
     async logout(authToken: AuthToken): Promise<void> {
         const params = {
             TableName: this.AuthTokenTableName,
@@ -145,7 +144,7 @@ export class AuthTokenTableDAO implements AuthTokenTableInterface {
 
         return;
     }
-
+    //Doesn't work
     async putImage(
         fileName: string,
         imageStringBase64Encoded: string
@@ -210,11 +209,10 @@ export class AuthTokenTableDAO implements AuthTokenTableInterface {
         password: string,
         userImageBytes: Uint8Array
     ): Promise<[User, AuthToken]> {
-        // Check if alias is already in use
         if (alias[0] != '@') {
             alias = '@' + alias;
         }
-        const paramsCheck = {
+        const paramsCheck = { // Check if alias is already in use
             TableName: this.usersTableName,
             Key: {
                 alias: alias
@@ -224,7 +222,7 @@ export class AuthTokenTableDAO implements AuthTokenTableInterface {
         if (responseCheck.Item) {
             throw new Error("Alias already in use");
         }
-        console.log("Alias is available");
+        // console.log("Alias is available");
 
         const password_hashed = await bcrypt.hash(password, 1);
 

@@ -75,7 +75,8 @@ class FollowService extends BaseService_1.BaseService {
     follow(authToken, userToFollow) {
         return __awaiter(this, void 0, void 0, function* () {
             AuthTokenTableDAO_1.AuthTokenTableDAO.authenticate(authToken);
-            const aliasOfFollower = yield this.getFollowDAO().follow(authToken, userToFollow);
+            const originalUser = yield AuthTokenTableDAO_1.AuthTokenTableDAO.findUserByAuthToken(authToken);
+            const aliasOfFollower = yield this.getFollowDAO().follow(originalUser, userToFollow);
             console.log("Attempting to update follower and followee count");
             this.getUserDAO().follow(aliasOfFollower, userToFollow.alias);
             const followersCount = yield this.getUserDAO().getFollowersCount(authToken, userToFollow);

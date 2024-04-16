@@ -14,18 +14,14 @@ const StatusService_1 = require("../model/service/StatusService");
 const IntegrationResponseCommon_1 = require("./IntegrationResponseCommon");
 const tweeter_shared_1 = require("tweeter-shared");
 // This will pull a Post from the OriginlPost Queue and Chop the post into PostBlocks
-// Of 25 (arbitrary) People to post to each, then send the PostBlock to the PostBlock Queue
+// Of 25 (mildly arbitrary) People to post to each, then send the PostBlock to the PostBlock Queue
 let handler = (SQS_Status_Object) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log("PostChopperLambda: handler: full event: ", JSON.stringify(SQS_Status_Object));
+    // console.log("PostChopperLambda: handler: full event: ", JSON.stringify(SQS_Status_Object));
     const bodyString = SQS_Status_Object.Records[0].body;
     console.log("PostChopperLambda: handler: bodyString: ", bodyString);
     // const status = JSON.parse(bodyString) as Status; // From JSON string because it's coming from SQS which must be stringified
-    // console.log("PostChopperLambda: handler: event processed: ", status);
     const betterStatus = tweeter_shared_1.Status.fromJson(bodyString);
     console.log("PostChopperLambda: handler: event processed: ", betterStatus);
-    // if (status == null) {
-    //     throw new Error("Status is undefined");
-    // }
     if (betterStatus == null) {
         throw new Error("Status is undefined");
     }

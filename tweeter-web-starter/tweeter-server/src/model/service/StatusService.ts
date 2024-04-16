@@ -14,7 +14,12 @@ export class StatusService extends BaseService {
     ): Promise<[Status[], boolean]> {
         AuthTokenTableDAO.authenticate(authToken);
 
-        return FakeData.instance.getPageOfStatuses(lastItem, pageSize);
+        console.log("Loading more feed items");
+        console.log("User: " + user.toJson());
+        console.log("PageSize: " + pageSize);
+        console.log("LastItem: " + lastItem);
+
+        return await this.getFeedDAO().loadMoreFeedItems(user, pageSize, lastItem);
     }
 
     public async loadMoreStoryItems(
@@ -95,10 +100,11 @@ export class StatusService extends BaseService {
     public async processStatuses(status: Status, followers: string[]): Promise<void> {
 
         console.log("Processing status for followers: " + JSON.stringify(followers));
+        console.log("With status: " + JSON.stringify(status));
 
         for (const follower of followers) {
-            // await this.getFeedDAO().postStatus(follower, status);
-            //FIXME
+            console.log("Posting status to feed of follower: " + follower);
+            await this.getFeedDAO().postStatus(status, follower);
         }
     }
 }

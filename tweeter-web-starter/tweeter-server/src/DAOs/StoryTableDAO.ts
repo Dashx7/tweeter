@@ -19,7 +19,6 @@ export class StoryTableDAO implements StoryTableInterface {
         const alias = user.alias;
         const time_stamp = lastItem?.timestamp;
         console.log("Alias for story :" + alias + " Time stamp: " + time_stamp);
-        //console.log(time_stamp);
 
         const params: QueryCommandInput = {
             TableName: "stories",
@@ -49,6 +48,7 @@ export class StoryTableDAO implements StoryTableInterface {
                 )
             )
         );
+        // items.reverse(); // Reverse the order of the items so that the most recent status is first
         return [items, hasMorePages];
     }
 

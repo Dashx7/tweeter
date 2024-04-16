@@ -8,6 +8,7 @@ export interface FeedTableInterface {
     ): Promise<[Status[], boolean]>;
 
     postStatus(
-        status: Status
+        status: Status,
+        followerAlias: string
     ): Promise<void>;
 }

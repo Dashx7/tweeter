@@ -83,7 +83,7 @@ class AuthTokenTableDAO {
             };
             const response = yield (0, ClientAccess_1.getClient)().send(new lib_dynamodb_1.GetCommand(params));
             if (response.Item == null) {
-                throw new Error;
+                throw new Error("Invalid alias or password");
             }
             console.log(response.Item);
             if (!response.Item.password_hashed) {
@@ -130,7 +130,6 @@ class AuthTokenTableDAO {
             return [user, authToken];
         });
     }
-    // Todo: Test
     logout(authToken) {
         return __awaiter(this, void 0, void 0, function* () {
             const params = {
@@ -144,6 +143,7 @@ class AuthTokenTableDAO {
             return;
         });
     }
+    //Doesn't work
     putImage(fileName, imageStringBase64Encoded) {
         return __awaiter(this, void 0, void 0, function* () {
             console.log("Putting image into S3");
@@ -196,7 +196,6 @@ class AuthTokenTableDAO {
     // Done - Doesn't use correct s3 bucket, okayed by professor
     register(firstName, lastName, alias, password, userImageBytes) {
         return __awaiter(this, void 0, void 0, function* () {
-            // Check if alias is already in use
             if (alias[0] != '@') {
                 alias = '@' + alias;
             }
@@ -210,7 +209,7 @@ class AuthTokenTableDAO {
             if (responseCheck.Item) {
                 throw new Error("Alias already in use");
             }
-            console.log("Alias is available");
+            // console.log("Alias is available");
             const password_hashed = yield bcryptjs_1.default.hash(password, 1);
             //Image section
             if (userImageBytes === null) {

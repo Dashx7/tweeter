@@ -10,7 +10,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.StatusService = void 0;
-const tweeter_shared_1 = require("tweeter-shared");
 const BaseService_1 = require("./BaseService");
 const AuthTokenTableDAO_1 = require("../../DAOs/AuthTokenTableDAO");
 const maxBlock = 25;
@@ -18,7 +17,11 @@ class StatusService extends BaseService_1.BaseService {
     loadMoreFeedItems(authToken, user, pageSize, lastItem) {
         return __awaiter(this, void 0, void 0, function* () {
             AuthTokenTableDAO_1.AuthTokenTableDAO.authenticate(authToken);
-            return tweeter_shared_1.FakeData.instance.getPageOfStatuses(lastItem, pageSize);
+            console.log("Loading more feed items");
+            console.log("User: " + user.toJson());
+            console.log("PageSize: " + pageSize);
+            console.log("LastItem: " + lastItem);
+            return yield this.getFeedDAO().loadMoreFeedItems(user, pageSize, lastItem);
         });
     }
     loadMoreStoryItems(authToken, user, pageSize, lastItem) {
@@ -86,9 +89,10 @@ class StatusService extends BaseService_1.BaseService {
     processStatuses(status, followers) {
         return __awaiter(this, void 0, void 0, function* () {
             console.log("Processing status for followers: " + JSON.stringify(followers));
+            console.log("With status: " + JSON.stringify(status));
             for (const follower of followers) {
-                // await this.getFeedDAO().postStatus(follower, status);
-                //FIXME
+                console.log("Posting status to feed of follower: " + follower);
+                yield this.getFeedDAO().postStatus(status, follower);
             }
         });
     }

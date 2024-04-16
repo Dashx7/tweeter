@@ -83,7 +83,8 @@ export class FollowService extends BaseService {
     ): Promise<[followersCount: number, followeesCount: number]> {
         AuthTokenTableDAO.authenticate(authToken);
 
-        const aliasOfFollower = await this.getFollowDAO().follow(authToken, userToFollow);
+        const originalUser = await AuthTokenTableDAO.findUserByAuthToken(authToken);
+        const aliasOfFollower = await this.getFollowDAO().follow(originalUser, userToFollow);
         console.log("Attempting to update follower and followee count");
         this.getUserDAO().follow(aliasOfFollower, userToFollow.alias);
         const followersCount = await this.getUserDAO().getFollowersCount(authToken, userToFollow);

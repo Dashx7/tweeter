@@ -19,7 +19,7 @@ export interface FollowTableDAOInterface {
     ): Promise<boolean>;
 
     follow(
-        authToken: AuthToken,
+        originalUser: User,
         userToFollow: User
     ): Promise<String>;
 
