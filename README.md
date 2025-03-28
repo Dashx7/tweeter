@@ -1,6 +1,6 @@
 # Tweeter-Web
 
-A replica project based off of Twitter
+A replica project based off of Twitter using high level production design techniques
 
 ## Setting Up the Project
 
